@@ -6,7 +6,7 @@
 <title>Liquid Drop Gallery</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7.5' fill='%23f4f4f2'/%3E%3Ccircle cx='25' cy='8' r='3.2' fill='%23f4f4f2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root { --bg:#000; --fg:#f4f4f2; --muted:#8a8a88; --dim:#5b5b59; --panel:rgba(22,22,22,.72); --line:rgba(255,255,255,.09); }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -19,11 +19,12 @@
   #crop b::before { left:0; right:0; top:50%; height:1px; }
   #crop b::after { top:0; bottom:0; left:50%; width:1px; }
   #caption { position:fixed; left:0; right:0; pointer-events:none; text-align:center; height:120px; }
-  .slide { position:absolute; left:0; right:0; top:0; display:flex; flex-direction:column; align-items:center; will-change:transform,filter,opacity; }
+  .slide { position:absolute; left:0; right:0; top:0; display:flex; flex-direction:column; align-items:center; }
   .pg { font-family:"JetBrains Mono", ui-monospace, monospace; font-size:11px; letter-spacing:.06em; color:var(--dim); margin-bottom:12px; }
   .pg em { font-style:normal; color:var(--fg); }
-  .title { font-size:clamp(26px, 2.6vw, 40px); font-weight:400; letter-spacing:-.015em; line-height:1.1; }
-  .sub { margin-top:10px; font-size:clamp(12px, 1vw, 15px); color:var(--muted); letter-spacing:.005em; }
+  .slide > div { will-change:transform,opacity,filter; }
+  .title { font-family:Outfit, Inter, ui-sans-serif, system-ui, sans-serif; font-size:clamp(26px, 2.6vw, 40px); font-weight:600; letter-spacing:-.02em; line-height:1.1; }
+  .sub { margin-top:10px; font-family:Outfit, Inter, ui-sans-serif, system-ui, sans-serif; font-size:clamp(12px, 1vw, 15px); font-weight:400; color:rgba(244,244,242,.5); letter-spacing:.005em; }
   #edit { position:fixed; right:18px; top:50%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%; background:#1b1b1b; border:1px solid var(--line); color:#bdbdbb; display:grid; place-items:center; cursor:pointer; }
   #edit:hover { color:#fff; background:#242424; }
   #panel { position:fixed; right:62px; top:50%; width:236px; transform:translateY(-50%) translateX(12px); opacity:0; pointer-events:none;
@@ -72,11 +73,11 @@
 <button id="edit" title="Properties"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 <div id="panel">
   <h4>Properties</h4>
-  <div class="row"><label><span>Goo</span><span id="vGoo"></span></label><input id="goo" type="range" min="0" max="90" step="1" value="42"></div>
+  <div class="row"><label><span>Goo</span><span id="vGoo"></span></label><input id="goo" type="range" min="0" max="200" step="1" value="110"></div>
   <div class="row"><label><span>Bounce</span><span id="vBounce"></span></label><input id="bounce" type="range" min="0" max="1" step="0.01" value="0.55"></div>
   <div class="row"><label><span>Orbit</span><span id="vOrbit"></span></label><input id="orbit" type="range" min="0" max="4" step="0.05" value="1"></div>
-  <div class="row"><label><span>Refraction</span><span id="vRefr"></span></label><input id="refr" type="range" min="0" max="1.5" step="0.01" value="0.8"></div>
-  <div class="tog"><span>Crop guides</span><input id="cropOn" type="checkbox" checked></div>
+  <div class="row"><label><span>Refraction</span><span id="vRefr"></span></label><input id="refr" type="range" min="0" max="2" step="0.01" value="1"></div>
+  <div class="tog"><span>Crop guides</span><input id="cropOn" type="checkbox"></div>
   <div class="btns"><button class="btn" id="add">+ Add drop</button><button class="btn" id="rm">Remove</button></div>
   <div class="hint">Tap a drop to bring it in · scroll or ←/→ · drag the frame edge · tap empty space to add a drop</div>
 </div>
@@ -110,7 +111,7 @@ const EXTRA = [
 ];
 
 // ---------- params ----------
-const P = { goo:42, bounce:0.55, orbit:1, refr:0.8, crop:true, remove:false };
+const P = { goo:110, bounce:0.55, orbit:1, refr:1, crop:false, remove:false };
 const bindRange = (id, key, fmt) => { const el = document.getElementById(id), v = document.getElementById('v' + id[0].toUpperCase() + id.slice(1));
   const set = () => { P[key] = parseFloat(el.value); v.textContent = fmt(P[key]); }; el.addEventListener('input', set); set(); };
 bindRange('goo', 'goo', x => x.toFixed(0) + 'px');
@@ -125,12 +126,12 @@ rmBtn.onclick = () => { P.remove = !P.remove; rmBtn.classList.toggle('on', P.rem
 
 // ---------- springs ----------
 const S = v => ({ v, vel:0, t:v });
-const zeta = () => Math.max(0.18, 1 - 0.78 * P.bounce);
+const zeta = () => Math.max(0.13, (1 - 0.78 * P.bounce) * 0.75);   // under-damped: 1-2 visible overshoots
 function stepLog(s, K, z, dt) { const c = 2 * z * Math.sqrt(K); const lv = Math.log(Math.max(s.v, 0.5)); const a = -K * (lv - Math.log(Math.max(s.t, 0.5))) - c * s.vel; s.vel += a * dt; s.v = Math.exp(lv + s.vel * dt); }
 function stepS(s, K, z, dt) { const c = 2 * z * Math.sqrt(K); const a = -K * (s.v - s.t) - c * s.vel; s.vel += a * dt; s.v += s.vel * dt; }
 
 // ---------- layout ----------
-let W = innerWidth, H = innerHeight, dpr = 1;
+let W = innerWidth, H = innerHeight, dpr = 1, renderScale = 1;
 const L = {};
 function viewSize() {
   const vv = window.visualViewport;
@@ -139,7 +140,7 @@ function viewSize() {
 }
 function layout() {
   const [vw, vh, ox, oy] = viewSize();
-  W = vw; H = vh; dpr = Math.min(devicePixelRatio || 1, CAPTURE ? 1 : 2);
+  W = vw; H = vh; dpr = Math.min(devicePixelRatio || 1, CAPTURE ? 1 : 2) * renderScale;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   cv.style.left = ox + 'px'; cv.style.top = oy + 'px';
@@ -176,24 +177,25 @@ let uid = 0, phase = 0, simT = 0;
 const blobs = [];          // all live blobs (render order irrelevant)
 const items = [];          // slide order (no pull blobs)
 let main = null, pull = null, lastOut = null;
-const SAT_R = [0.032, 0.026, 0.036, 0.024, 0.03, 0.022, 0.034, 0.027, 0.029, 0.025, 0.031, 0.023];
+const SAT_R = [0.032, 0.026, 0.036, 0.024, 0.03, 0.022, 0.034, 0.027, 0.029, 0.025, 0.031, 0.023].map(r => r * 0.85);
 function mkBlob(o) {
   const b = Object.assign({ id: uid++, photo:0, hue:0, role:'sat', theta:0, m:1, rs:0.03, z:0, dying:false, mapTo:null }, o);
   b.x = S(o.x0 ?? L.cx); b.y = S(o.y0 ?? L.cy); b.w = S(o.w0 ?? 10); b.h = S(o.h0 ?? 10); b.s = S(o.s0 ?? 1);
-  b.hs = S(1); b.kf = S(1); b.hover = false;   // hover scale + per-drop goo factor
+  b.hs = S(1); b.kf = S(KF_REST); b.hover = false; b.hot = o.hot ?? 0;   // hover scale + per-drop goo factor
   blobs.push(b); return b;
 }
 function satTarget(b) {
   const a = b.theta + phase, br = 1 + 0.035 * Math.sin(simT * 0.6 + b.id * 1.7);
   return [L.cx + Math.cos(a) * L.rx * b.m * br, L.cy + Math.sin(a) * L.ry * b.m * br];
 }
+const KF_REST = 0.5;   // resting satellites goo with k*0.5; swapping/pulled drops use full k
 let hovered = null;
 function setHover(b) {
   if (b && (b.role !== 'sat' || b.dying)) b = null;
   if (hovered === b) return;
-  if (hovered) { hovered.hover = false; hovered.hs.t = 1; hovered.kf.t = 1; }
+  if (hovered) { hovered.hover = false; hovered.hs.t = 1; }
   hovered = b;
-  if (b) { b.hover = true; b.hx = b.x.v; b.hy = b.y.v; b.hs.t = 1.5; b.kf.t = 0.3; }
+  if (b) { b.hover = true; b.hx = b.x.v; b.hy = b.y.v; b.hs.t = 1.5; }
 }
 function init() {
   const n = SLIDES.length;
@@ -219,11 +221,11 @@ function swapTo(b) {
   const out = main; cropA.v = 0; cropA.vel = 0;
   const tIn = b.theta;
   // incoming: becomes main
-  b.role = 'main'; main = b; b.z = 3; b.w.t = L.hw; b.h.t = L.hh; b.x.t = L.cx; b.y.t = L.cy;
+  b.role = 'main'; main = b; b.z = 3; b.hot = 1.6; b.w.t = L.hw; b.h.t = L.hh; b.x.t = L.cx; b.y.t = L.cy;
   // a little anticipation: kick toward the centre
   b.x.vel += (L.cx - b.x.v) * 0.5; b.y.vel += (L.cy - b.y.v) * 0.5;
   // outgoing: pushed the opposite way, pinches off into the orbit
-  out.role = 'sat'; out.z = 1.5; out.theta = tIn + Math.PI + (Math.random() - 0.5) * 0.3; out.m = b.m; out.rs = b.rs;
+  out.role = 'sat'; out.z = 1.5; out.hot = 1.6; out.theta = tIn + Math.PI + (Math.random() - 0.5) * 0.3; out.m = b.m; out.rs = b.rs;
   const [tx, ty] = satTarget(out); out.x.vel += (tx - out.x.v) * 0.7; out.y.vel += (ty - out.y.v) * 0.7;
   if (lastOut && lastOut !== out) lastOut.z = 0; lastOut = out;
   blobs.forEach(o => { if (o !== b && o !== out) o.z = 0; });
@@ -255,12 +257,13 @@ function removeBlob(b) {
 // ---------- pull (jelly drag) ----------
 let drag = null;
 function sdRB(px, py, b) {
-  const s = Math.max(0, b.s.v) * b.hs.v, hw = b.w.v * s, hh = b.h.v * s, r = Math.min(hw, hh) * 0.96;
-  const qx = Math.abs(px - b.x.v) - hw + r, qy = Math.abs(py - b.y.v) - hh + r;
-  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
+  // capsule / stadium: a segment along the long axis, radius = half the short side
+  const s = Math.max(0, b.s.v) * b.hs.v, hw = b.w.v * s, hh = b.h.v * s, r = Math.min(hw, hh);
+  const qx = Math.max(Math.abs(px - b.x.v) - (hw - r), 0), qy = Math.max(Math.abs(py - b.y.v) - (hh - r), 0);
+  return Math.hypot(qx, qy) - r;
 }
 function pullStart(x, y) {
-  pull = mkBlob({ role:'pull', photo: main.photo, hue: main.hue, mapTo: main, z: 2.6, x0: x, y0: y, s0: 0.4 });
+  pull = mkBlob({ role:'pull', hot: 99, photo: main.photo, hue: main.hue, mapTo: main, z: 2.6, x0: x, y0: y, s0: 0.4 });
   const r = main.h.v * 0.42; pull.w = S(r); pull.h = S(r); pull.s.t = 1;
   pullMove(x, y);
 }
@@ -282,7 +285,7 @@ function pullEnd() {
   const [ux, uy] = pull._u || [0, 0];
   pull.x.t = main.x.v; pull.y.t = main.y.v; pull.s.t = 0; pull.dying = true; pull.isPull = true;
   main.x.t = L.cx; main.y.t = L.cy; main.w.t = L.hw; main.h.t = L.hh;
-  main.x.vel -= ux * 260; main.y.vel -= uy * 260;          // snap back past centre
+  main.x.vel -= ux * 340; main.y.vel -= uy * 340;          // snap back past centre
   main.w.vel += Math.abs(ux) * 420 - Math.abs(uy) * 220;   // jelly wobble
   main.h.vel += Math.abs(uy) * 360 - Math.abs(ux) * 260;
   pull = null;
@@ -347,17 +350,27 @@ function renderCaption(instant) {
   if (curSlide && curSlide.id === main.id) { curSlide.el.querySelector('.pg').innerHTML = `<em>${pad(i)}</em> / ${pad(n)}`; return; }
   const el = document.createElement('div'); el.className = 'slide';
   el.innerHTML = `<div class="pg"><em>${pad(i)}</em> / ${pad(n)}</div><div class="title">${main.title}</div><div class="sub">${main.sub}</div>`;
-  if (curSlide) { curSlide.leave = true; curSlide.y.t = -18; curSlide.bl.t = 12; curSlide.op.t = 0; }
-  const sl = { el, id: main.id, y: S(instant ? 0 : 24), bl: S(instant ? 0 : 10), op: S(instant ? 1 : 0), delay: instant ? 0 : 0.1 };
+  // outgoing lines leave first, top to bottom, staggered
+  if (curSlide) { curSlide.leave = true; curSlide.parts.forEach((p, k) => { p.delay = k * 0.035; }); }
+  const parts = [...el.children].map((node, k) => ({ node, y: S(instant ? 0 : 22), op: S(instant ? 1 : 0), bl: S(instant ? 0 : 8), delay: k * 0.055 }));
+  // incoming waits until every outgoing line has cleared (no double exposure)
+  const sl = { el, id: main.id, parts, gated: !instant && !!curSlide, leave: false };
   cap.appendChild(el); slides.push(sl); curSlide = sl; drawSlide(sl);
 }
-function drawSlide(sl) { sl.el.style.transform = `translateY(${sl.y.v.toFixed(2)}px)`; sl.el.style.filter = `blur(${Math.max(0, sl.bl.v).toFixed(2)}px)`; sl.el.style.opacity = Math.max(0, Math.min(1, sl.op.v)).toFixed(3); }
+function drawSlide(sl) { for (const p of sl.parts) {
+  p.node.style.transform = `translateY(${p.y.v.toFixed(2)}px)`; p.node.style.filter = p.bl.v > 0.05 ? `blur(${p.bl.v.toFixed(2)}px)` : 'none';
+  p.node.style.opacity = Math.max(0, Math.min(1, p.op.v)).toFixed(3); } }
 function simCaption(dt) {
+  const leaving = slides.some(sl => sl.leave && sl.parts.some(p => p.op.v > 0.03));
   for (let i = slides.length - 1; i >= 0; i--) { const sl = slides[i];
-    if (!sl.leave) { sl.delay -= dt; if (sl.delay <= 0) { sl.y.t = 0; sl.bl.t = 0; sl.op.t = 1; } }
-    const z = sl.leave ? 1 : Math.max(0.35, zeta());
-    stepS(sl.y, sl.leave ? 260 : 150, z, dt); stepS(sl.bl, sl.leave ? 260 : 110, 1, dt); stepS(sl.op, sl.leave ? 300 : 90, 1, dt);
-    if (sl.leave && sl.op.v < 0.01) { sl.el.remove(); slides.splice(i, 1); } }
+    if (sl.gated && !leaving) sl.gated = false;
+    for (const p of sl.parts) {
+      if (sl.leave) { p.delay -= dt; if (p.delay <= 0) { p.y.t = -16; p.op.t = 0; p.bl.t = 6; }
+        stepS(p.y, 420, 1, dt); stepS(p.op, 520, 1, dt); stepS(p.bl, 400, 1, dt); }
+      else if (!sl.gated) { p.delay -= dt; if (p.delay <= 0) { p.y.t = 0; p.op.t = 1; p.bl.t = 0; }
+        stepS(p.y, 210, Math.max(0.45, zeta()), dt); stepS(p.op, 120, 1, dt); stepS(p.bl, 140, 1, dt); }
+    }
+    if (sl.leave && sl.parts.every(p => p.op.v < 0.01 && p.op.t === 0)) { sl.el.remove(); slides.splice(i, 1); } }
 }
 
 // ---------- GL ----------
@@ -367,42 +380,52 @@ const FS = `#version 300 es
 precision highp float; precision highp sampler2DArray;
 uniform sampler2DArray uTex; uniform vec2 uRes; uniform float uDpr; uniform int uN;
 uniform vec4 uG[${MAXN}]; uniform vec4 uS[${MAXN}]; uniform vec4 uM[${MAXN}];
-uniform float uK; uniform float uRefr; uniform float uKf[${MAXN}];
+uniform float uK; uniform float uRefr; uniform float uKf[${MAXN}]; uniform float uMorph;
 out vec4 o;
-float sdRB(vec2 p, vec2 b, float r){ vec2 q = abs(p) - b + r; return length(max(q,0.)) + min(max(q.x,q.y),0.) - r; }
-float smin(float a, float b, float k){ float h = max(k - abs(a-b), 0.) / k; return min(a,b) - h*h*k*.25; }
+// stadium / capsule: segment along the long axis, radius = half the short side
+float sdCap(vec2 p, vec2 b){ float r = min(b.x, b.y); vec2 q = max(abs(p) - (b - r), 0.); return length(q) - r; }
+// cubic smooth-min (C2): thick, continuous fillets instead of V-shaped pinches
+float smin(float a, float b, float k){ float h = max(k - abs(a-b), 0.) / k; return min(a,b) - h*h*h*k*(1./6.); }
 float scene(vec2 p){ float d = 1e5; for(int i=0;i<${MAXN};i++){ if(i>=uN) break; vec4 g = uG[i]; if(g.z < .25) continue;
-  d = smin(d, sdRB(p - g.xy, g.zw, uS[i].x), max(.5, uK * uKf[i])); } return d; }
+  float di = sdCap(p - g.xy, g.zw); float k = max(.5, uK * uKf[i]);
+  d = di - d > k ? d : (d - di > k ? di : smin(d, di, k)); } return d; }
 vec3 hueRot(vec3 c, float a){ const mat3 toY = mat3(.299,.596,.211, .587,-.274,-.523, .114,-.322,.312);
   const mat3 toR = mat3(1.,1.,1., .956,-.272,-1.106, .621,-.647,1.703); vec3 y = toY*c; float h = atan(y.z,y.y)+a, ch = length(y.yz);
   return toR*vec3(y.x, ch*cos(h), ch*sin(h)); }
-vec3 sampleB(int i, vec2 p){ vec4 m = uM[i]; vec2 l = (p - m.xy) / (2.*m.zw) + .5; float A = m.z / m.w; vec2 uv = l;
+vec3 sampleB(int i, vec2 p){ vec4 m = uM[i]; vec2 l = (p - m.xy) / (2.2 * m.zw) + .5; float A = m.z / m.w; vec2 uv = l;   // image at 1.1x
   if (A > ${IA.toFixed(4)}) uv.y = .5 + (l.y - .5) * (${IA.toFixed(4)} / A); else uv.x = .5 + (l.x - .5) * (A / ${IA.toFixed(4)});
   vec3 c = texture(uTex, vec3(clamp(uv, .002, .998), uS[i].y)).rgb; if (uS[i].w != 0.) c = clamp(hueRot(c, uS[i].w), 0., 1.); return c; }
 void main(){
   vec2 p = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;
   float d = scene(p);
   if (d > 1.5) { o = vec4(0.,0.,0.,1.); return; }
-  vec2 n = vec2(scene(p + vec2(.75,0.)) - scene(p - vec2(.75,0.)), scene(p + vec2(0.,.75)) - scene(p - vec2(0.,.75)));
+  // forward-difference normal: 2 extra scene evaluations instead of 4
+  vec2 n = vec2(scene(p + vec2(1.,0.)) - d, scene(p + vec2(0.,1.)) - d);
   n = n / max(length(n), 1e-4);
   float ds[${MAXN}]; float dm = 1e5;
   for(int i=0;i<${MAXN};i++){ if(i>=uN) break; vec4 g = uG[i]; ds[i] = 1e5; if(g.z < .25) continue;
-    ds[i] = sdRB(p - g.xy, g.zw, uS[i].x) - uS[i].z * 7.; dm = min(dm, ds[i]); }
+    ds[i] = sdCap(p - g.xy, g.zw) - uS[i].z * 7.; dm = min(dm, ds[i]); }
   float wsum = 0., hs = 0.;
-  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; float w = exp(-(ds[i]-dm)/5.); wsum += w; hs += w * min(uG[i].z, uG[i].w); }
+  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; float w = exp(-(ds[i]-dm)/8.); wsum += w; hs += w * min(uG[i].z, uG[i].w); }
   hs /= wsum;
-  float ew = clamp(hs * .42, 5., 30.);
-  float e = clamp(1. + d / ew, 0., 1.);
-  vec2 ps = p - n * e * e * ew * 1.25 * uRefr;
+  float ew = clamp(hs * .55, 7., 46.);          // thicker glass band
+  float e = clamp(1. + d / ew, 0., 1.);          // 0 deep inside -> 1 at the rim
+  // edge refraction / liquid UV warp, stronger while shapes are morphing
+  float warp = (1.9 + 1.4 * uMorph) * uRefr;
+  vec2 ps = p - n * pow(e, 1.6) * ew * warp;
   vec3 col = vec3(0.);
-  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; float w = exp(-(ds[i]-dm)/5.) / wsum; if (w < .004) continue; col += w * sampleB(i, ps); }
-  // glass shading: darker lens edge, thin bright rim, top-left specular, faint bottom-right bounce
+  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; float w = exp(-(ds[i]-dm)/8.) / wsum; if (w < .004) continue; col += w * sampleB(i, ps); }
   vec2 Ld = normalize(vec2(-.55,-.83));
   float lit = max(dot(n, Ld), 0.), back = max(dot(n, -Ld), 0.);
-  col *= 1. - .55 * pow(e, 2.2);
-  float rim = smoothstep(-3.2, -.7, d) * (1. - smoothstep(-.7, .7, d));
-  col += rim * (.16 + .55 * lit + .18 * back);
-  col += pow(e, 3.) * (pow(lit, 5.) * .42 + pow(back, 6.) * .1);
+  // volumetric glass: strong inner darkening just inside the rim, wide Fresnel, bright lip, specular
+  float inner = smoothstep(.25, .82, e) * (1. - smoothstep(.9, 1., e) * .55);
+  col *= 1. - .78 * inner;
+  float fres = pow(e, 2.6);
+  col += fres * (.12 + .5 * lit + .14 * back);
+  float lip = smoothstep(-6.5, -1.2, d) * (1. - smoothstep(-1.2, .6, d));
+  col += lip * (.14 + .62 * lit + .16 * back);
+  col += pow(e, 3.5) * (pow(lit, 4.) * .55 + pow(back, 6.) * .14);
+  col = min(col, vec3(1.));
   float a = clamp(.5 - d, 0., 1.);
   o = vec4(col * a, 1.);
 }`;
@@ -413,7 +436,7 @@ gl.useProgram(prog);
 const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
 const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 const U = n => gl.getUniformLocation(prog, n);
-const uKf = U('uKf'), uRes = U('uRes'), uDpr = U('uDpr'), uN = U('uN'), uG = U('uG'), uSu = U('uS'), uM = U('uM'), uK = U('uK'), uRefr = U('uRefr');
+const uMorph = U('uMorph'), uKf = U('uKf'), uRes = U('uRes'), uDpr = U('uDpr'), uN = U('uN'), uG = U('uG'), uSu = U('uS'), uM = U('uM'), uK = U('uK'), uRefr = U('uRefr');
 const tex = gl.createTexture(); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D_ARRAY, tex);
 gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, IMG_W, IMG_H, 5);
 gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -428,16 +451,16 @@ function render() {
   for (const b of blobs) { if (n >= MAXN) break; const s = Math.max(0, b.s.v) * b.hs.v; const hw = b.w.v * s, hh = b.h.v * s; if (hw < .3) continue;
     KF[n] = Math.max(0.05, b.kf.v);
     const mp = b.mapTo && !b.mapTo.dying ? b.mapTo : b; const ms = Math.max(0.05, mp.s.v);
-    G.set([b.x.v, b.y.v, hw, hh], n * 4); SS.set([Math.min(hw, hh) * .96, b.photo, b.z, b.hue], n * 4);
+    G.set([b.x.v, b.y.v, hw, hh], n * 4); SS.set([Math.min(hw, hh), b.photo, b.z, b.hue], n * 4);
     M.set([mp.x.v, mp.y.v, Math.max(4, mp.w.v * ms), Math.max(4, mp.h.v * ms)], n * 4); n++; }
   gl.uniform2f(uRes, W, H); gl.uniform1f(uDpr, dpr); gl.uniform1i(uN, n);
   gl.uniform4fv(uG, G); gl.uniform4fv(uSu, SS); gl.uniform4fv(uM, M);
-  gl.uniform1f(uK, Math.max(0.5, P.goo)); gl.uniform1fv(uKf, KF); gl.uniform1f(uRefr, P.refr);
+  gl.uniform1f(uK, Math.max(0.5, P.goo)); gl.uniform1fv(uKf, KF); gl.uniform1f(uRefr, P.refr); gl.uniform1f(uMorph, Math.min(1, morph));
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
 // ---------- simulation ----------
-const crop = document.getElementById('crop'); const cropA = S(1);
+const crop = document.getElementById('crop'); const cropA = S(0); let morph = 0;
 function sim(dt) {
   simT += dt; simCaption(dt); const dPh = P.orbit * (Math.PI * 2 / 38) * dt; phase += dPh;
   // keep satellites spaced around the orbit
@@ -452,17 +475,20 @@ function sim(dt) {
       if (b.hover) { b.theta -= dPh; b.x.t = b.hx; b.y.t = b.hy; }   // parked: holds its screen angle while hovered
       else { const [tx, ty] = satTarget(b); b.x.t = tx; b.y.t = ty; }
       const r = b.rs * L.unit; b.w.t = r; b.h.t = r; }
-    const Kp = b.role === 'pull' || b.isPull ? 300 : 72;
+    const Kp = b.role === 'pull' || b.isPull ? 320 : 92;
     stepS(b.x, Kp, z, dt); stepS(b.y, Kp, z, dt);
     const gw = b.w.t >= b.w.v, gh = b.h.t >= b.h.v;      // growing: springy jelly; shrinking: soft, never inverts
-    stepS(b.w, gw ? 84 : 46, gw ? z * 0.95 : Math.max(0.92, z), dt); stepS(b.h, gh ? 54 : 38, gh ? z * 0.95 : Math.max(0.92, z), dt);
+    stepS(b.w, gw ? 104 : 58, gw ? z * 0.95 : Math.max(0.7, z), dt); stepS(b.h, gh ? 68 : 48, gh ? z * 0.95 : Math.max(0.7, z), dt);
     if (b.w.v < 2) { b.w.v = 2; b.w.vel = Math.max(0, b.w.vel); } if (b.h.v < 2) { b.h.v = 2; b.h.vel = Math.max(0, b.h.vel); }
-    stepS(b.hs, 620, 0.5, dt); stepS(b.kf, 260, 1, dt);
+    if (b.hot > 0) b.hot -= dt;
+    b.kf.t = b.role === 'pull' || b.isPull || b.role === 'main' || b.hot > 0 ? 1 : (b.hover ? 0.32 : KF_REST);
+    stepS(b.hs, 620, 0.5, dt); stepS(b.kf, b.kf.t > b.kf.v ? 400 : 30, 1, dt);   // full goo at once, relax slowly so necks snap naturally
     stepS(b.s, b.dying ? 380 : 210, b.dying ? 0.55 : z * 0.75, dt);
   }
   for (let i = blobs.length - 1; i >= 0; i--) { const b = blobs[i]; if (b.dying && b.s.t === 0 && b.s.v < 0.01 && b.s.vel <= 0.5) { blobs.splice(i, 1); const k = items.indexOf(b); if (k >= 0) items.splice(k, 1); renderCaption(); } }
   // crop guides fade in only while the frame is at rest
   const speed = Math.hypot(main.x.vel, main.y.vel) + Math.abs(main.w.vel) + Math.abs(main.h.vel);
+  morph += (Math.min(1, speed / 900 + (pull ? 0.6 : 0)) - morph) * Math.min(1, dt * 10);
   cropA.t = P.crop && speed < 40 && !pull && Math.abs(main.w.v - L.hw) < 6 ? 1 : 0; stepS(cropA, 140, 1, dt);
 }
 function drawDom() {
@@ -540,7 +566,13 @@ Promise.all([1,2,3,4,5].map(i => loadImg(`photo${i}.jpg`))).then(imgs => {
   init();
   window.__ready = true;
   if (CAPTURE) { window.__advance = ms => tick(ms); tick(0); }
-  else { let last = performance.now(); const loop = now => { tick(Math.min(50, now - last)); last = now; requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+  else {
+    // adaptive resolution: if frames run long for a while (slow GPU / huge screen), drop render scale a notch
+    let last = performance.now(), ema = 16.7, cool = last + 1500;
+    const loop = now => { const dt = now - last; last = now; ema = ema * 0.92 + Math.min(dt, 80) * 0.08;
+      if (ema > 22 && renderScale > 0.55 && now > cool && !document.hidden) { renderScale = Math.max(0.55, renderScale - 0.15); layout(); cool = now + 1500; }
+      tick(Math.min(50, dt)); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop); }
 });
 window.__app = { swapTo, step, addAt, removeBlob, pullStart, pullMove, pullEnd, P, blobs, items };
 })();
