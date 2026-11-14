@@ -6,35 +6,35 @@
 <title>Liquid Drop Gallery</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7.5' fill='%23f4f4f2'/%3E%3Ccircle cx='25' cy='8' r='3.2' fill='%23f4f4f2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#000; --fg:#f4f4f2; --muted:#8a8a88; --dim:#5b5b59; --panel:rgba(22,22,22,.72); --line:rgba(255,255,255,.09); }
+  :root { --bg:#000; --fg:#f4f4f2; --muted:#8a8a88; --dim:#6f6f6d; --panel:rgba(22,22,22,.72); --line:rgba(255,255,255,.09); }
   * { box-sizing:border-box; margin:0; padding:0; }
   html,body { width:100%; height:100%; height:100dvh; background:var(--bg); overflow:hidden; overscroll-behavior:none; touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; font-family:Inter, ui-sans-serif, system-ui, sans-serif; color:var(--fg); -webkit-font-smoothing:antialiased; }
   canvas#gl { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; -webkit-user-select:none; }
-  #crop { position:fixed; left:0; top:0; pointer-events:none; border:1px solid rgba(255,255,255,.55); will-change:transform,opacity; }
-  #crop i { position:absolute; width:5px; height:5px; border:1px solid rgba(255,255,255,.75); background:rgba(0,0,0,.25); transform:translate(-50%,-50%); }
-  #crop b { position:absolute; left:50%; top:50%; width:44px; height:44px; transform:translate(-50%,-50%); }
-  #crop b::before, #crop b::after { content:""; position:absolute; background:rgba(255,255,255,.55); }
+  #crop { position:fixed; left:0; top:0; pointer-events:none; border:1px solid rgba(255,255,255,.5); will-change:transform,opacity; opacity:0; }
+  #crop i { position:absolute; width:5px; height:5px; border:1px solid rgba(255,255,255,.7); background:rgba(0,0,0,.2); transform:translate(-50%,-50%); }
+  #crop b { position:absolute; left:50%; top:50%; width:66px; height:66px; transform:translate(-50%,-50%); }
+  #crop b::before, #crop b::after { content:""; position:absolute; background:rgba(255,255,255,.5); }
   #crop b::before { left:0; right:0; top:50%; height:1px; }
   #crop b::after { top:0; bottom:0; left:50%; width:1px; }
-  #caption { position:fixed; left:0; right:0; pointer-events:none; text-align:center; height:120px; }
-  .slide { position:absolute; left:0; right:0; top:0; display:flex; flex-direction:column; align-items:center; }
-  .pg { font-family:"JetBrains Mono", ui-monospace, monospace; font-size:11px; letter-spacing:.06em; color:var(--dim); margin-bottom:12px; }
-  .pg em { font-style:normal; color:var(--fg); }
-  .slide > div { will-change:transform,opacity,filter; }
-  .title { font-family:Outfit, Inter, ui-sans-serif, system-ui, sans-serif; font-size:clamp(26px, 2.6vw, 40px); font-weight:600; letter-spacing:-.02em; line-height:1.1; }
-  .sub { margin-top:10px; font-family:Outfit, Inter, ui-sans-serif, system-ui, sans-serif; font-size:clamp(12px, 1vw, 15px); font-weight:400; color:rgba(244,244,242,.5); letter-spacing:.005em; }
-  #edit { position:fixed; right:18px; top:50%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%; background:#1b1b1b; border:1px solid var(--line); color:#bdbdbb; display:grid; place-items:center; cursor:pointer; }
+  #caption { position:fixed; left:0; right:0; top:0; pointer-events:none; text-align:center; }
+  #pg { position:absolute; left:0; right:0; font-family:"Geist Mono", ui-monospace, monospace; font-size:12px; line-height:12px; letter-spacing:.02em; color:#7a7a78; white-space:pre; }
+  #pg em { font-style:normal; color:#e9e9e7; }
+  .slide { position:absolute; left:0; right:0; top:0; }
+  .title { position:absolute; left:0; right:0; font-size:37.6px; line-height:37.6px; font-weight:400; letter-spacing:-.005em; white-space:nowrap; color:#f6f6f4; }
+  .title span { display:inline-block; will-change:opacity,filter; white-space:pre; }
+  .sub { position:absolute; left:0; right:0; font-size:14.7px; line-height:15px; font-weight:400; color:rgba(244,244,242,.56); white-space:nowrap; will-change:opacity,filter; }
+  #edit { position:fixed; right:0; top:52.7%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%; background:#1b1b1b; border:1px solid var(--line); color:#bdbdbb; display:grid; place-items:center; cursor:pointer; }
   #edit:hover { color:#fff; background:#242424; }
-  #panel { position:fixed; right:62px; top:50%; width:236px; transform:translateY(-50%) translateX(12px); opacity:0; pointer-events:none;
+  #panel { position:fixed; right:44px; top:50%; width:236px; transform:translateY(-50%) translateX(12px); opacity:0; pointer-events:none;
            background:var(--panel); backdrop-filter:blur(18px) saturate(1.2); -webkit-backdrop-filter:blur(18px); border:1px solid var(--line); border-radius:14px; padding:14px 14px 12px;
            transition: opacity .25s ease, transform .35s cubic-bezier(.2,1.2,.3,1); font-size:12px; color:#cfcfcd; }
   #panel.open { opacity:1; pointer-events:auto; transform:translateY(-50%); }
-  #panel h4 { font-weight:500; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; font-family:"JetBrains Mono", ui-monospace, monospace; }
+  #panel h4 { font-weight:500; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; font-family:"Geist Mono", ui-monospace, monospace; }
   .row { margin-bottom:12px; }
   .row label { display:flex; justify-content:space-between; margin-bottom:6px; }
-  .row label span:last-child { font-family:"JetBrains Mono", ui-monospace, monospace; color:var(--muted); font-size:11px; }
+  .row label span:last-child { font-family:"Geist Mono", ui-monospace, monospace; color:var(--muted); font-size:11px; }
   input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:2px; background:#3a3a3a; border-radius:2px; outline:none; }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#f2f2f0; cursor:pointer; box-shadow:0 0 0 3px rgba(255,255,255,.08); }
   .btns { display:flex; gap:6px; margin-top:4px; }
@@ -44,44 +44,38 @@
   .tog { display:flex; align-items:center; justify-content:space-between; margin:2px 0 12px; }
   .tog input { accent-color:#f2f2f0; }
   .hint { margin-top:10px; color:var(--dim); font-size:11px; line-height:1.5; }
-  canvas#gl { cursor:none; }
-  #cursor { position:fixed; left:0; top:0; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:50%; background:rgba(255,255,255,.92); box-shadow:0 0 0 5px rgba(255,255,255,.1); pointer-events:none; display:none; opacity:1;
-            transition: width .15s, height .15s, margin .15s, opacity .12s ease; z-index:10; }
-  #cursor.down { width:10px; height:10px; margin:-5px 0 0 -5px; }
-  #cursor.hide { opacity:0; width:4px; height:4px; margin:-2px 0 0 -2px; }
-  body.remove #cursor { background:transparent; border:1.5px solid rgba(255,255,255,.9); box-shadow:none; }
-
+  /* scripted-demo pointer (the live page uses the native cursor, as in the original) */
+  #cursor { position:fixed; left:0; top:0; pointer-events:none; display:none; z-index:10; width:0; height:0; }
+  #cursor svg { position:absolute; left:0; top:0; display:none; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
+  #cursor.arrow .a, #cursor.hand .h { display:block; }
+  #cursor .h { left:-6px; top:-1px; }
   #fallback { position:fixed; inset:0; display:grid; place-items:center; padding:32px; text-align:center; color:#cfcfcd; font-size:15px; line-height:1.6; }
   @media (max-width:700px), (pointer:coarse) {
-    canvas#gl { cursor:auto; }
-    #cursor { display:none !important; }
     #edit { top:auto; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); right:calc(16px + env(safe-area-inset-right, 0px)); transform:none; z-index:5; }
     #panel { top:auto; bottom:calc(56px + env(safe-area-inset-bottom, 0px)); right:16px; left:16px; width:auto; max-width:360px; margin-left:auto; transform:translateY(12px); }
     #panel.open { transform:none; }
-    .title { font-size:clamp(22px, 6.2vw, 34px); }
-    .sub { font-size:clamp(12px, 3.2vw, 15px); }
     .hint { display:none; }
   }
 </style>
 </head>
 <body>
 <canvas id="gl"></canvas>
-<div id="crop"><i style="left:0;top:0"></i><i style="left:33.3%;top:0"></i><i style="left:50%;top:0"></i><i style="left:66.6%;top:0"></i><i style="left:100%;top:0"></i>
-<i style="left:0;top:100%"></i><i style="left:33.3%;top:100%"></i><i style="left:50%;top:100%"></i><i style="left:66.6%;top:100%"></i><i style="left:100%;top:100%"></i>
-<i style="left:0;top:50%"></i><i style="left:100%;top:50%"></i><i style="left:30%;top:50%"></i><i style="left:70%;top:50%"></i><b></b></div>
-<div id="caption"></div>
+<div id="crop"><i style="left:0;top:0"></i><i style="left:2.4%;top:0"></i><i style="left:28%;top:0"></i><i style="left:50%;top:0"></i><i style="left:72%;top:0"></i><i style="left:97.6%;top:0"></i><i style="left:100%;top:0"></i>
+<i style="left:0;top:100%"></i><i style="left:2.4%;top:100%"></i><i style="left:28%;top:100%"></i><i style="left:50%;top:100%"></i><i style="left:72%;top:100%"></i><i style="left:97.6%;top:100%"></i><i style="left:100%;top:100%"></i>
+<i style="left:0;top:50%"></i><i style="left:2.4%;top:50%"></i><i style="left:28%;top:50%"></i><i style="left:72%;top:50%"></i><i style="left:97.6%;top:50%"></i><i style="left:100%;top:50%"></i><b></b></div>
+<div id="caption"><div id="pg"></div></div>
 <button id="edit" title="Properties"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 <div id="panel">
   <h4>Properties</h4>
   <div class="row"><label><span>Goo</span><span id="vGoo"></span></label><input id="goo" type="range" min="0" max="200" step="1" value="110"></div>
-  <div class="row"><label><span>Bounce</span><span id="vBounce"></span></label><input id="bounce" type="range" min="0" max="1" step="0.01" value="0.55"></div>
-  <div class="row"><label><span>Orbit</span><span id="vOrbit"></span></label><input id="orbit" type="range" min="0" max="4" step="0.05" value="1"></div>
-  <div class="row"><label><span>Refraction</span><span id="vRefr"></span></label><input id="refr" type="range" min="0" max="2" step="0.01" value="1"></div>
-  <div class="tog"><span>Crop guides</span><input id="cropOn" type="checkbox"></div>
+  <div class="row"><label><span>Bounce</span><span id="vBounce"></span></label><input id="bounce" type="range" min="0" max="1" step="0.01" value="0.08"></div>
+  <div class="row"><label><span>Drift</span><span id="vOrbit"></span></label><input id="orbit" type="range" min="0" max="4" step="0.05" value="1"></div>
+  <div class="row"><label><span>Refraction</span><span id="vRefr"></span></label><input id="refr" type="range" min="0" max="3" step="0.01" value="1"></div>
+  <div class="tog"><span>Crop guides</span><input id="cropOn" type="checkbox" checked></div>
   <div class="btns"><button class="btn" id="add">+ Add drop</button><button class="btn" id="rm">Remove</button></div>
-  <div class="hint">Tap a drop to bring it in · scroll or ←/→ · drag the frame edge · tap empty space to add a drop</div>
+  <div class="hint">Click a drop to bring it in · scroll or ←/→ · drag the frame edge · click empty space to add a drop</div>
 </div>
-<div id="cursor"></div>
+<div id="cursor" class="arrow"><svg class="a" width="13" height="19" viewBox="0 0 13 19"><path d="M1 1 L1 15.5 L4.6 12.2 L7 17.6 L9.3 16.6 L7 11.4 L11.8 11.4 Z" fill="#111" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg><svg class="h" width="16" height="18" viewBox="0 0 16 18"><path d="M5.2 1.2c.8 0 1.4.6 1.4 1.4v5.2l.1-.9c.1-.7.7-1.2 1.4-1.1.7.1 1.1.7 1.1 1.4v.6c.2-.6.8-1 1.4-.9.7.1 1.1.8 1.1 1.4v.8c.2-.5.7-.8 1.3-.7.7.1 1.1.7 1.1 1.4v3.6c0 2.6-2 4.7-4.6 4.7H8.4c-1.4 0-2.7-.7-3.5-1.8L1.4 10.4c-.4-.6-.3-1.4.3-1.8.6-.4 1.3-.3 1.8.2l.3.4V2.6c0-.8.6-1.4 1.4-1.4z" fill="#fff" stroke="#111" stroke-width="1"/></svg></div>
 <script>
 (() => {
 const Q = new URLSearchParams(location.search);
@@ -94,16 +88,18 @@ if (!gl) {
   document.body.appendChild(el);
   return;
 }
-const MAXN = 16, IMG_W = 1024, IMG_H = 636, IA = IMG_W / IMG_H;
+const MAXN = 16, NPH = 6, IMG_W = 1024, IMG_H = 636, IA = IMG_W / IMG_H;
 
-// ---------- data ----------
+// ---------- data (same order as the original: 01..06) ----------
 const SLIDES = [
   { photo:0, title:'Where the light begins', sub:'Scroll \u2014 the next drop flows into the frame.' },
+  { photo:5, title:'Quiet profile, warm edge', sub:'Hover a drop \u2014 it leans in before it joins.' },
   { photo:3, title:'Soft layers, sharp focus', sub:'Tune goo, bounce and orbit from the properties panel.' },
   { photo:1, title:'Made for stories', sub:'Images or videos \u2014 up to 12 items.' },
   { photo:2, title:'End on a strong frame', sub:'The section releases the scroll after the last drop.' },
   { photo:4, title:'One more drop', sub:'Add, remove and reorder items freely.' },
 ];
+const ITEM_R = [.12, .17, .165, .175, .18, .133];   // per-item drop radius (x frame half-height), measured on the source
 const EXTRA = [
   { title:'Born from the orbit', sub:'A new drop condenses out of the dark.' },
   { title:'Still water, bright edge', sub:'Every merge ends in a little wobble.' },
@@ -111,26 +107,27 @@ const EXTRA = [
 ];
 
 // ---------- params ----------
-const P = { goo:110, bounce:0.55, orbit:1, refr:1, crop:false, remove:false };
+const P = { goo:110, bounce:0.08, orbit:1, refr:1, crop:true, remove:false };
 const bindRange = (id, key, fmt) => { const el = document.getElementById(id), v = document.getElementById('v' + id[0].toUpperCase() + id.slice(1));
   const set = () => { P[key] = parseFloat(el.value); v.textContent = fmt(P[key]); }; el.addEventListener('input', set); set(); };
 bindRange('goo', 'goo', x => x.toFixed(0) + 'px');
 bindRange('bounce', 'bounce', x => x.toFixed(2));
 bindRange('orbit', 'orbit', x => x.toFixed(2) + '\u00d7');
 bindRange('refr', 'refr', x => x.toFixed(2));
-document.getElementById('cropOn').addEventListener('change', e => P.crop = e.target.checked);
+const cropBox = document.getElementById('cropOn');
+cropBox.addEventListener('change', e => P.crop = e.target.checked);
 const panel = document.getElementById('panel');
 document.getElementById('edit').onclick = () => panel.classList.toggle('open');
 const rmBtn = document.getElementById('rm');
-rmBtn.onclick = () => { P.remove = !P.remove; rmBtn.classList.toggle('on', P.remove); document.body.classList.toggle('remove', P.remove); };
+rmBtn.onclick = () => { P.remove = !P.remove; rmBtn.classList.toggle('on', P.remove); };
 
 // ---------- springs ----------
 const S = v => ({ v, vel:0, t:v });
-const zeta = () => Math.max(0.13, (1 - 0.78 * P.bounce) * 0.75);   // under-damped: 1-2 visible overshoots
-function stepLog(s, K, z, dt) { const c = 2 * z * Math.sqrt(K); const lv = Math.log(Math.max(s.v, 0.5)); const a = -K * (lv - Math.log(Math.max(s.t, 0.5))) - c * s.vel; s.vel += a * dt; s.v = Math.exp(lv + s.vel * dt); }
+const zeta = () => Math.max(0.2, 1 - 0.8 * P.bounce);      // default ~critically damped, as in the original
 function stepS(s, K, z, dt) { const c = 2 * z * Math.sqrt(K); const a = -K * (s.v - s.t) - c * s.vel; s.vel += a * dt; s.v += s.vel * dt; }
+const K_MOVE = 64;   // omega 8/s: a swap reads ~0.45 s and settles by ~0.65 s (measured on the source)
 
-// ---------- layout ----------
+// ---------- layout (measured on the source: frame 53.7% x 50.1% of the viewport, centre at 46% height) ----------
 let W = innerWidth, H = innerHeight, dpr = 1, renderScale = 1;
 const L = {};
 function viewSize() {
@@ -138,163 +135,166 @@ function viewSize() {
   if (vv && vv.width && vv.height) return [vv.width, vv.height, vv.offsetLeft || 0, vv.offsetTop || 0];
   return [innerWidth, innerHeight, 0, 0];
 }
+const pgEl = document.getElementById('pg'), cap = document.getElementById('caption');
 function layout() {
   const [vw, vh, ox, oy] = viewSize();
   W = vw; H = vh; dpr = Math.min(devicePixelRatio || 1, CAPTURE ? 1 : 2) * renderScale;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   cv.style.left = ox + 'px'; cv.style.top = oy + 'px';
-  L.unit = Math.min(W, H * 1.5);
-  const satPad = L.unit * 0.045 + 14;
-  const capH = Math.min(H * 0.22, 150);
-  const padTop = Math.max(12, satPad * 0.35);
+  const portrait = W < H * 0.9;
   L.cx = W / 2;
-  L.hw = Math.min(W * 0.265, H * 0.255 * 1.6);
-  L.hh = L.hw / 1.6;
-  L.rx = Math.max(L.hw + 110, W * 0.372);
-  L.ry = L.hh + Math.min(H * 0.09, 86);
-  const maxRx = Math.max(24, W / 2 - satPad);
-  if (L.rx > maxRx) {
-    const s = maxRx / L.rx;
-    L.rx = maxRx;
-    L.hw *= Math.min(1, s * 1.08);
-    L.hh = L.hw / 1.6;
+  if (!portrait) {
+    L.hw = Math.min(W * 0.2685, H * 0.2507 * 1.6); L.hh = L.hw / 1.6; L.cy = H * 0.46;
+    L.sx = L.hw; L.sy = L.hh;
+    L.capY = Math.max(L.cy + L.hh * 1.45, H * 0.812);
+  } else {
+    L.hw = W * 0.36; L.hh = L.hw / 1.6; L.cy = H * 0.42;
+    L.sx = Math.min(L.hw, (W / 2 - 34) / 1.32); L.sy = L.hh * 1.25;
+    L.capY = L.cy + L.hh * 2.35;
   }
-  const maxRy = Math.max(24, (H - capH - padTop) / 2);
-  if (L.ry > maxRy) {
-    L.ry = maxRy;
-    L.hh = Math.min(L.hh, L.ry * 0.72);
-    L.hw = L.hh * 1.6;
-    L.rx = Math.min(L.rx, Math.max(L.hw + 24, maxRx));
-  }
-  L.cy = Math.min(Math.max(padTop + L.ry, H * 0.42), H - capH - L.ry);
-  document.getElementById('caption').style.top = (L.cy + L.ry + Math.min(H * 0.05, 46)) + 'px';
+  L.u = L.hh;                                   // satellite radii are in frame half-heights
+  const ts = portrait ? Math.min(1, W / 520) : Math.min(1.25, Math.max(0.6, W / 1503));
+  pgEl.style.top = (L.capY + 3 * ts) + 'px';
+  L.titleY = L.capY + 28.5 * ts; L.subY = L.capY + 80 * ts; L.ts = ts;
+  pgEl.style.fontSize = (12 * Math.max(ts, .85)) + 'px';
 }
 layout();
 
+// ---------- ring of slots, measured from the source (polar, in frame half-width / half-height units) ----------
+// order after the main frame going forward: bottom-left, left, top, top-right, bottom-right
+const SLOTS = [ { a:122.3, d:1.642, r:1 }, { a:206.2, d:1.404, r:1 }, { a:266.5, d:1.322, r:1 }, { a:329.6, d:1.483, r:1.15 }, { a:413.9, d:1.697, r:1 } ];
+function slotAt(u) { const f = Math.max(0, Math.min(4, u * 4)), i = Math.min(3, Math.floor(f)), t = f - i, A = SLOTS[i], B = SLOTS[i + 1];
+  return { a: (A.a + (B.a - A.a) * t) * Math.PI / 180, d: A.d + (B.d - A.d) * t, r: A.r + (B.r - A.r) * t }; }
+
 // ---------- blobs ----------
-let uid = 0, phase = 0, simT = 0;
-const blobs = [];          // all live blobs (render order irrelevant)
-const items = [];          // slide order (no pull blobs)
-let main = null, pull = null, lastOut = null;
-const SAT_R = [0.032, 0.026, 0.036, 0.024, 0.03, 0.022, 0.034, 0.027, 0.029, 0.025, 0.031, 0.023].map(r => r * 0.85);
+let uid = 0, simT = 0;
+const blobs = [];          // all live blobs
+const items = [];          // ring order
+let main = null;
+const KF_REST = 0.5;
 function mkBlob(o) {
-  const b = Object.assign({ id: uid++, photo:0, hue:0, role:'sat', theta:0, m:1, rs:0.03, z:0, dying:false, mapTo:null }, o);
+  const b = Object.assign({ id: uid++, photo:0, hue:0, role:'sat', z:0, dying:false, anc:null, ph: 0, rs: .16 }, o);
   b.x = S(o.x0 ?? L.cx); b.y = S(o.y0 ?? L.cy); b.w = S(o.w0 ?? 10); b.h = S(o.h0 ?? 10); b.s = S(o.s0 ?? 1);
-  b.hs = S(1); b.kf = S(KF_REST); b.hover = false; b.hot = o.hot ?? 0;   // hover scale + per-drop goo factor
+  b.hs = S(1); b.kf = S(KF_REST); b.hover = false; b.hot = 0;
   blobs.push(b); return b;
 }
+function live() { return items.filter(b => !b.dying); }
+function ringOffset(b) { const lv = live(), n = lv.length; return (lv.indexOf(b) - lv.indexOf(main) + n) % n; }
 function satTarget(b) {
-  const a = b.theta + phase, br = 1 + 0.035 * Math.sin(simT * 0.6 + b.id * 1.7);
-  return [L.cx + Math.cos(a) * L.rx * b.m * br, L.cy + Math.sin(a) * L.ry * b.m * br];
+  const lv = live(), n = lv.length, k = ringOffset(b);
+  const sl = slotAt(n <= 2 ? 0.5 : (k - 1) / (n - 2));
+  const dr = 0.05 * P.orbit;     // the source's drops barely drift; they do not orbit
+  const nx = Math.cos(sl.a) * sl.d + dr * Math.sin(simT * 0.45 + b.ph), ny = Math.sin(sl.a) * sl.d + dr * 1.4 * Math.cos(simT * 0.37 + b.ph * 1.3);
+  const r = sl.r * b.rs * L.u;
+  let x = L.cx + nx * L.sx, y = L.cy + ny * L.sy;
+  x = Math.max(r + 6, Math.min(W - r - 6, x)); y = Math.max(r + 6, Math.min(H - r - 6, y));
+  return [x, y, r];
 }
-const KF_REST = 0.5;   // resting satellites goo with k*0.5; swapping/pulled drops use full k
 let hovered = null;
 function setHover(b) {
   if (b && (b.role !== 'sat' || b.dying)) b = null;
   if (hovered === b) return;
   if (hovered) { hovered.hover = false; hovered.hs.t = 1; }
   hovered = b;
-  if (b) { b.hover = true; b.hx = b.x.v; b.hy = b.y.v; b.hs.t = 1.5; }
+  if (b) { b.hover = true; b.hs.t = 1.3; }
 }
 function init() {
-  const n = SLIDES.length;
-  SLIDES.forEach((sl, i) => {
-    const b = mkBlob({ photo: sl.photo, title: sl.title, sub: sl.sub, rs: SAT_R[i % SAT_R.length] });
-    items.push(b);
-    if (i === 0) { setMain(b, true); }
-    else {
-      b.theta = -Math.PI / 2 + (i - 1) * (Math.PI * 2 / (n - 1)) + 0.35; b.m = [1, 1.06, 0.97, 1.09, 1.02][i % 5];
-      const [x, y] = satTarget(b); b.x = S(x); b.y = S(y); const r = b.rs * L.unit; b.w = S(r); b.h = S(r);
-    }
-  });
+  SLIDES.forEach((sl, i) => { const b = mkBlob({ photo: sl.photo, title: sl.title, sub: sl.sub, rs: ITEM_R[i], ph: [0, 2.1, 4.4, 2.9, 0.7, 5.3][i] }); items.push(b); });
+  main = items[0]; main.role = 'main'; main.x = S(L.cx); main.y = S(L.cy); main.w = S(L.hw); main.h = S(L.hh);
+  items.slice(1).forEach(b => { const [x, y, r] = satTarget(b); b.x = S(x); b.y = S(y); b.w = S(r); b.h = S(r); });
   renderCaption(true);
 }
-function setMain(b, instant) {
-  b.role = 'main'; main = b;
-  b.x.t = L.cx; b.y.t = L.cy; b.w.t = L.hw; b.h.t = L.hh;
-  if (instant) { b.x = S(L.cx); b.y = S(L.cy); b.w = S(L.hw); b.h = S(L.hh); }
+// anchored motion: a blob grows / shrinks about one of its corners, so the incoming photo slides in
+// sideways from its drop while the outgoing one is pushed out the other side (as in the source)
+function bakeHover(b) { if (b.hs.v !== 1) { b.w.v *= b.hs.v; b.h.v *= b.hs.v; b.w.vel *= b.hs.v; b.h.vel *= b.hs.v; } b.hs = S(1); }
+function setAnchor(b, sx, sy) {
+  const w = b.w.v, h = b.h.v; b.anc = { x: S(b.x.v + sx * w), y: S(b.y.v + sy * h), sx, sy, t: 0 };
+  b.anc.x.vel = b.x.vel; b.anc.y.vel = b.y.vel;
 }
-function swapTo(b) {
-  if (!b || b === main || b.dying || b.role !== 'sat') return;
-  if (hovered === b) setHover(null);
-  const out = main; cropA.v = 0; cropA.vel = 0;
-  const tIn = b.theta;
-  // incoming: becomes main
-  b.role = 'main'; main = b; b.z = 3; b.hot = 1.6; b.w.t = L.hw; b.h.t = L.hh; b.x.t = L.cx; b.y.t = L.cy;
-  // a little anticipation: kick toward the centre
-  b.x.vel += (L.cx - b.x.v) * 0.5; b.y.vel += (L.cy - b.y.v) * 0.5;
-  // outgoing: pushed the opposite way, pinches off into the orbit
-  out.role = 'sat'; out.z = 1.5; out.hot = 1.6; out.theta = tIn + Math.PI + (Math.random() - 0.5) * 0.3; out.m = b.m; out.rs = b.rs;
-  const [tx, ty] = satTarget(out); out.x.vel += (tx - out.x.v) * 0.7; out.y.vel += (ty - out.y.v) * 0.7;
-  if (lastOut && lastOut !== out) lastOut.z = 0; lastOut = out;
-  blobs.forEach(o => { if (o !== b && o !== out) o.z = 0; });
+let stepQ = [];
+function step(dir) {
+  const lv = live(), n = lv.length; if (n < 2) return;
+  const inc = lv[(lv.indexOf(main) + dir + n) % n], out = main;
+  if (hovered === inc) setHover(null);
+  bakeHover(inc);
+  const sx = dir > 0 ? -1 : 1;
+  inc.role = 'main'; main = inc; inc.z = 3; inc.hot = 1.0; inc.x.t = L.cx; inc.y.t = L.cy;
+  setAnchor(inc, sx, inc.y.v < L.cy - L.hh * 0.2 ? -1 : 1);
+  out.role = 'sat'; out.z = 1.5; out.hot = 1.0; setAnchor(out, -sx, 1);
+  blobs.forEach(o => { if (o !== inc && o !== out) o.z = Math.max(0, o.z - 1.5); });
+  if (P.crop) { P.crop = false; cropBox.checked = false; }     // the guides are an intro hint only, as in the source
+  cropA.v = 0; cropA.vel = 0;
   renderCaption();
 }
-function step(dir) {
-  const live = items.filter(b => !b.dying); const i = live.indexOf(main);
-  swapTo(live[(i + dir + live.length) % live.length]);
+function queueSteps(dir, count, gap = 0.17) { let t = simT; for (let i = 0; i < count; i++) { stepQ.push({ dir, at: t }); t += Array.isArray(gap) ? (gap[i] ?? 0.17) : gap; } }
+function swapTo(b) {
+  if (!b || b === main || b.dying || b.role !== 'sat' || stepQ.length) return;
+  const n = live().length, k = ringOffset(b);
+  let dir = k <= n - k ? 1 : -1; if (k === n - k) dir = b.x.v < L.cx ? 1 : -1;
+  queueSteps(dir, dir > 0 ? k : n - k, [0.12, 0.2]);
 }
 let extraI = 0;
 function addAt(x, y) {
-  const live = items.filter(b => !b.dying); if (live.length >= 12) return null;
-  const dx = (x - L.cx) / L.rx, dy = (y - L.cy) / L.ry;
-  const theta = Math.atan2(dy, dx) - phase, m = Math.min(1.18, Math.max(0.9, Math.hypot(dx, dy)));
+  const lv = live(); if (lv.length >= 12) return null;
+  // insert at the ring position whose slot is nearest to the click
+  let best = 1, bd = 1e9;
+  for (let k = 1; k <= lv.length; k++) { const sl = slotAt(lv.length <= 1 ? .5 : (k - 1) / (lv.length - 1));
+    const sx = L.cx + Math.cos(sl.a) * sl.d * L.sx, sy = L.cy + Math.sin(sl.a) * sl.d * L.sy, d = Math.hypot(sx - x, sy - y); if (d < bd) { bd = d; best = k; } }
   const ex = EXTRA[extraI++ % EXTRA.length];
-  let ph = [4, 2, 0][(extraI - 1) % 3]; if (ph === main.photo) ph = (ph + 1) % 5;
-  const b = mkBlob({ photo: ph, hue: [2.3, 3.4, 1.2][(extraI - 1) % 3], title: ex.title, sub: ex.sub, theta, m,
-    rs: SAT_R[(live.length + 3) % SAT_R.length], x0: x, y0: y, s0: 0 });
-  const r = b.rs * L.unit; b.w = S(r); b.h = S(r); b.s.t = 1; b.s.vel = 2; b.pop = true;
-  items.push(b); renderCaption(); return b;
+  let ph = [4, 2, 0][(extraI - 1) % 3]; if (ph === main.photo) ph = (ph + 1) % NPH;
+  const b = mkBlob({ photo: ph, hue: [2.3, 3.4, 1.2][(extraI - 1) % 3], title: ex.title, sub: ex.sub, rs: .16, ph: extraI * 1.7, x0: x, y0: y, s0: 0 });
+  const r = 0.16 * L.u; b.w = S(r); b.h = S(r); b.s.t = 1; b.s.vel = 2;
+  const after = lv[(lv.indexOf(main) + best - 1) % lv.length]; items.splice(items.indexOf(after) + 1, 0, b);
+  renderCaption(); return b;
 }
 function removeBlob(b) {
   if (!b || b === main || b.role !== 'sat' || b.dying) return;
   if (hovered === b) setHover(null);
-  b.dying = true; b.s.t = 0; b.s.vel = 3.2; b.popOut = true;
+  b.dying = true; b.s.t = 0; b.s.vel = 3.2;
   renderCaption();
 }
 
-// ---------- pull (jelly drag) ----------
-let drag = null;
+// ---------- shape helpers ----------
+// rounded box, corner radius 0.93 x half-height at the frame's 1.6:1 (measured), a circle when square
+function cornerR(hw, hh) { const m = Math.min(hw, hh), q = Math.max(hw, hh) / Math.max(m, 1e-3); return m * (1 - 0.07 * Math.min(1, (q - 1) / 0.6)); }
 function sdRB(px, py, b) {
-  // capsule / stadium: a segment along the long axis, radius = half the short side
-  const s = Math.max(0, b.s.v) * b.hs.v, hw = b.w.v * s, hh = b.h.v * s, r = Math.min(hw, hh);
-  const qx = Math.max(Math.abs(px - b.x.v) - (hw - r), 0), qy = Math.max(Math.abs(py - b.y.v) - (hh - r), 0);
-  return Math.hypot(qx, qy) - r;
-}
-function pullStart(x, y) {
-  pull = mkBlob({ role:'pull', hot: 99, photo: main.photo, hue: main.hue, mapTo: main, z: 2.6, x0: x, y0: y, s0: 0.4 });
-  const r = main.h.v * 0.42; pull.w = S(r); pull.h = S(r); pull.s.t = 1;
-  pullMove(x, y);
-}
-function pullMove(x, y) {
-  if (!pull) return;
-  const vx = x - main.x.v, vy = y - main.y.v, dist = Math.hypot(vx, vy) || 1, ux = vx / dist, uy = vy / dist;
-  const beyond = sdRB(x, y, main), maxP = Math.min(150, main.h.v * 0.62);
-  const rub = beyond > 0 ? maxP * (1 - Math.exp(-beyond / maxP)) : beyond * 0.5;
-  const edge = dist - beyond, R = pull.w.v;
-  const reach = edge + rub - R * 0.55;
-  pull.x.t = main.x.v + ux * reach; pull.y.t = main.y.v + uy * reach;
-  main.x.t = L.cx + ux * Math.max(0, rub) * 0.12; main.y.t = L.cy + uy * Math.max(0, rub) * 0.12;
-  // squash the frame a touch toward the pull
-  main.w.t = L.hw * (1 + Math.abs(ux) * Math.max(0, rub) / 1400); main.h.t = L.hh * (1 + Math.abs(uy) * Math.max(0, rub) / 900);
-  pull._u = [ux, uy];
-}
-function pullEnd() {
-  if (!pull) return;
-  const [ux, uy] = pull._u || [0, 0];
-  pull.x.t = main.x.v; pull.y.t = main.y.v; pull.s.t = 0; pull.dying = true; pull.isPull = true;
-  main.x.t = L.cx; main.y.t = L.cy; main.w.t = L.hw; main.h.t = L.hh;
-  main.x.vel -= ux * 340; main.y.vel -= uy * 340;          // snap back past centre
-  main.w.vel += Math.abs(ux) * 420 - Math.abs(uy) * 220;   // jelly wobble
-  main.h.vel += Math.abs(uy) * 360 - Math.abs(ux) * 260;
-  pull = null;
+  const s = Math.max(0, b.s.v) * b.hs.v, hw = b.w.v * s, hh = b.h.v * s, r = cornerR(hw, hh);
+  const qx = Math.abs(px - b.x.v) - (hw - r), qy = Math.abs(py - b.y.v) - (hh - r);
+  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
 }
 
-// ---------- input ----------
+// ---------- pull: the frame edge stretches into a tapered tentacle toward the pointer ----------
+const pull = { on:false, act:false, bx:0, by:0, tx:S(0), ty:S(0), r0:0, r1:0, lastX:0, lastY:0 };
+function boundaryToward(ux, uy) {   // distance from the main centre to its outline along a ray
+  let lo = 0, hi = Math.max(L.hw, L.hh) * 2;
+  for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (sdRB(main.x.v + ux * m, main.y.v + uy * m, main) < 0) lo = m; else hi = m; }
+  return lo;
+}
+function pullAim(x, y) {
+  const vx = x - main.x.v, vy = y - main.y.v, d = Math.hypot(vx, vy) || 1, ux = vx / d, uy = vy / d;
+  const e = boundaryToward(ux, uy), beyond = Math.max(0, d - e), maxL = L.hh * 1.25;
+  const rub = maxL * (1 - Math.exp(-beyond / maxL));
+  pull.bx = main.x.v + ux * (e - pull.r0 * 0.9); pull.by = main.y.v + uy * (e - pull.r0 * 0.9);
+  pull.tx.t = main.x.v + ux * (e + rub); pull.ty.t = main.y.v + uy * (e + rub);
+  main.x.t = L.cx + ux * rub * 0.05; main.y.t = L.cy + uy * rub * 0.05;
+}
+function pullStart(x, y) {
+  pull.on = true; pull.act = true; pull.r0 = L.hh * 0.2; pull.r1 = Math.max(4, L.hh * 0.028); pull.lastX = x; pull.lastY = y;
+  pullAim(x, y); pull.tx = S(pull.bx); pull.ty = S(pull.by); pullAim(x, y);
+}
+function pullMove(x, y) { if (pull.act) { pull.lastX = x; pull.lastY = y; pullAim(x, y); } }
+function pullEnd() {
+  if (!pull.act) return; pull.act = false;
+  pull.tx.t = pull.bx; pull.ty.t = pull.by;           // retracts into the frame
+  main.x.t = L.cx; main.y.t = L.cy;
+}
+
+// ---------- input (live) ----------
+let drag = null;
 function hit(x, y) {
   let best = null, bd = 1e9;
-  for (const b of blobs) { if (b.dying || b.role === 'pull') continue; const d = sdRB(x, y, b) - (b.role === 'sat' ? 8 : 0); if (d < 0 && d < bd) { bd = d; best = b; } }
+  for (const b of blobs) { if (b.dying) continue; const d = sdRB(x, y, b) - (b.role === 'sat' ? 6 : 0); if (d < 0 && d < bd) { bd = d; best = b; } }
   return best;
 }
 function viewPoint(e) {
@@ -302,75 +302,71 @@ function viewPoint(e) {
   const ox = vv ? (vv.offsetLeft || 0) : 0, oy = vv ? (vv.offsetTop || 0) : 0;
   return [e.clientX - ox, e.clientY - oy];
 }
-function finePointer(e) {
-  if (e && e.pointerType && e.pointerType !== 'mouse') return false;
-  return matchMedia('(hover: hover) and (pointer: fine)').matches;
-}
+const nearEdge = (x, y) => { const d = sdRB(x, y, main); return d > -L.hh * 0.35 && d < 22; };
 cv.addEventListener('pointerdown', e => {
   if (DEMO) return;
   const [x, y] = viewPoint(e);
   const b = hit(x, y);
-  if (b === main) { drag = { x, y, on:false }; cv.setPointerCapture(e.pointerId); return; }
-  if (b) { P.remove ? removeBlob(b) : swapTo(b); return; }
+  if (b && b.role === 'sat') { P.remove ? removeBlob(b) : swapTo(b); return; }
+  if (b === main || nearEdge(x, y)) { drag = { x, y, on:false }; cv.setPointerCapture(e.pointerId); return; }
   addAt(x, y);
 });
-const cursorEl = document.getElementById('cursor');
-function placeCursor(x, y, overSat) { cursorEl.style.transform = `translate(${x}px, ${y}px)`; cursorEl.classList.toggle('hide', !!overSat); }
-function showCursor(e, on) { cursorEl.style.display = (on && finePointer(e)) ? 'block' : 'none'; }
-cv.addEventListener('pointerenter', e => { if (!DEMO) showCursor(e, true); });
-cv.addEventListener('pointerleave', e => { if (DEMO) return; showCursor(e, false); if (!drag) setHover(null); });
+function setCursor(x, y) {
+  const b = hit(x, y);
+  cv.style.cursor = b && b.role === 'sat' ? (P.remove ? 'not-allowed' : 'pointer') : (drag && drag.on ? 'grabbing' : 'default');
+}
+cv.addEventListener('pointerleave', () => { if (DEMO) return; if (!drag) setHover(null); });
 cv.addEventListener('pointermove', e => {
   if (DEMO) return;
   const [x, y] = viewPoint(e);
-  showCursor(e, true);
-  if (!drag) { const b = hit(x, y); const sat = b && b.role === 'sat' ? b : null; setHover(sat); placeCursor(x, y, sat); return; }
-  placeCursor(x, y, false);
-  if (!drag.on && Math.hypot(x - drag.x, y - drag.y) > 4) { drag.on = true; pullStart(x, y); }
+  if (e.pointerType === 'mouse') setCursor(x, y);
+  if (!drag) { const b = e.pointerType === 'mouse' ? hit(x, y) : null; setHover(b && b.role === 'sat' ? b : null); return; }
+  if (!drag.on && Math.hypot(x - drag.x, y - drag.y) > 4) { drag.on = true; pullStart(drag.x, drag.y); }
   if (drag.on) pullMove(x, y);
 });
 const endDrag = () => { if (drag && drag.on) pullEnd(); drag = null; };
 cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
 document.addEventListener('touchmove', e => { if (e.target === cv || e.target.closest?.('#gl, #caption, #crop')) e.preventDefault(); }, { passive:false });
 let wheelLock = 0;
-addEventListener('wheel', e => { if (DEMO) return; const now = performance.now(); if (now < wheelLock || Math.abs(e.deltaY) < 6) return; wheelLock = now + 750; step(e.deltaY > 0 ? 1 : -1); }, { passive:true });
-addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowDown') step(1); if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') step(-1); });
-document.getElementById('add').onclick = () => { const a = Math.random() * Math.PI * 2; addAt(L.cx + Math.cos(a) * L.rx, L.cy + Math.sin(a) * L.ry); };
-function onResize() { layout(); if (main) setMain(main, true); }
+addEventListener('wheel', e => { if (DEMO) return; const now = performance.now(); if (now < wheelLock || Math.abs(e.deltaY) < 6 || stepQ.length) return; wheelLock = now + 450; queueSteps(e.deltaY > 0 ? 1 : -1, 1); }, { passive:true });
+addEventListener('keydown', e => { if (DEMO || stepQ.length) return; if (e.key === 'ArrowRight' || e.key === 'ArrowDown') queueSteps(1, 1); if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') queueSteps(-1, 1); });
+document.getElementById('add').onclick = () => { const a = Math.random() * Math.PI * 2; addAt(L.cx + Math.cos(a) * L.sx * 1.5, L.cy + Math.sin(a) * L.sy * 1.5); };
+function onResize() { layout(); if (main) { main.x = S(L.cx); main.y = S(L.cy); main.w = S(L.hw); main.h = S(L.hh); main.anc = null; } slides.forEach(placeSlide); }
 addEventListener('resize', onResize);
 addEventListener('orientationchange', onResize);
 if (window.visualViewport) visualViewport.addEventListener('resize', onResize);
 
-// ---------- caption (spring-driven so it also runs in sim time) ----------
-const cap = document.getElementById('caption');
+// ---------- caption: counter flips at once, outgoing text blurs out together, incoming words blur in one by one ----------
 const slides = []; let curSlide = null, capKey = '';
+function placeSlide(sl) { sl.tEl.style.top = (L.titleY) + 'px'; sl.sEl.style.top = (L.subY) + 'px';
+  sl.tEl.style.fontSize = (37.6 * L.ts) + 'px'; sl.tEl.style.lineHeight = (37.6 * L.ts) + 'px'; sl.sEl.style.fontSize = (14.7 * Math.max(L.ts, .8)) + 'px'; }
 function renderCaption(instant) {
-  const live = items.filter(b => !b.dying), i = live.indexOf(main) + 1, n = live.length;
-  const key = main.id + ':' + n; if (key === capKey) return; capKey = key;
+  const lv = live(), i = lv.indexOf(main) + 1, n = lv.length;
   const pad = v => String(v).padStart(2, '0');
-  if (curSlide && curSlide.id === main.id) { curSlide.el.querySelector('.pg').innerHTML = `<em>${pad(i)}</em> / ${pad(n)}`; return; }
+  pgEl.innerHTML = `<em>${pad(i)}</em> / ${pad(n)}`;
+  const key = String(main.id); if (key === capKey) return; capKey = key;
   const el = document.createElement('div'); el.className = 'slide';
-  el.innerHTML = `<div class="pg"><em>${pad(i)}</em> / ${pad(n)}</div><div class="title">${main.title}</div><div class="sub">${main.sub}</div>`;
-  // outgoing lines leave first, top to bottom, staggered
-  if (curSlide) { curSlide.leave = true; curSlide.parts.forEach((p, k) => { p.delay = k * 0.035; }); }
-  const parts = [...el.children].map((node, k) => ({ node, y: S(instant ? 0 : 22), op: S(instant ? 1 : 0), bl: S(instant ? 0 : 8), delay: k * 0.055 }));
-  // incoming waits until every outgoing line has cleared (no double exposure)
-  const sl = { el, id: main.id, parts, gated: !instant && !!curSlide, leave: false };
-  cap.appendChild(el); slides.push(sl); curSlide = sl; drawSlide(sl);
+  const words = main.title.split(' ');
+  el.innerHTML = `<div class="title">${words.map((w, k) => `<span>${w}${k < words.length - 1 ? ' ' : ''}</span>`).join('')}</div><div class="sub">${main.sub}</div>`;
+  const tEl = el.children[0], sEl = el.children[1];
+  if (curSlide) { curSlide.leave = true; }
+  const nodes = [...tEl.children, sEl];
+  const parts = nodes.map((node, k) => ({ node, op: S(instant ? 1 : 0), bl: S(instant ? 0 : 10), delay: k < words.length ? k * 0.05 : words.length * 0.05 + 0.05 }));
+  const sl = { el, tEl, sEl, id: main.id, parts, gated: !instant && !!curSlide, leave: false };
+  placeSlide(sl); cap.appendChild(el); slides.push(sl); curSlide = sl; drawSlide(sl);
 }
 function drawSlide(sl) { for (const p of sl.parts) {
-  p.node.style.transform = `translateY(${p.y.v.toFixed(2)}px)`; p.node.style.filter = p.bl.v > 0.05 ? `blur(${p.bl.v.toFixed(2)}px)` : 'none';
+  p.node.style.filter = p.bl.v > 0.05 ? `blur(${p.bl.v.toFixed(2)}px)` : 'none';
   p.node.style.opacity = Math.max(0, Math.min(1, p.op.v)).toFixed(3); } }
 function simCaption(dt) {
   const leaving = slides.some(sl => sl.leave && sl.parts.some(p => p.op.v > 0.03));
   for (let i = slides.length - 1; i >= 0; i--) { const sl = slides[i];
     if (sl.gated && !leaving) sl.gated = false;
     for (const p of sl.parts) {
-      if (sl.leave) { p.delay -= dt; if (p.delay <= 0) { p.y.t = -16; p.op.t = 0; p.bl.t = 6; }
-        stepS(p.y, 420, 1, dt); stepS(p.op, 520, 1, dt); stepS(p.bl, 400, 1, dt); }
-      else if (!sl.gated) { p.delay -= dt; if (p.delay <= 0) { p.y.t = 0; p.op.t = 1; p.bl.t = 0; }
-        stepS(p.y, 210, Math.max(0.45, zeta()), dt); stepS(p.op, 120, 1, dt); stepS(p.bl, 140, 1, dt); }
+      if (sl.leave) { p.op.t = 0; p.bl.t = 8; stepS(p.op, 700, 1, dt); stepS(p.bl, 700, 1, dt); }
+      else if (!sl.gated) { p.delay -= dt; if (p.delay <= 0) { p.op.t = 1; p.bl.t = 0; } stepS(p.op, 170, 1, dt); stepS(p.bl, 190, 1, dt); }
     }
-    if (sl.leave && sl.parts.every(p => p.op.v < 0.01 && p.op.t === 0)) { sl.el.remove(); slides.splice(i, 1); } }
+    if (sl.leave && sl.parts.every(p => p.op.v < 0.01)) { sl.el.remove(); slides.splice(i, 1); } }
 }
 
 // ---------- GL ----------
@@ -378,53 +374,47 @@ const VS = `#version 300 es
 in vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
 const FS = `#version 300 es
 precision highp float; precision highp sampler2DArray;
-uniform sampler2DArray uTex; uniform vec2 uRes; uniform float uDpr; uniform int uN;
+uniform sampler2DArray uTex; uniform vec2 uRes; uniform float uDpr; uniform int uN; uniform int uMain;
 uniform vec4 uG[${MAXN}]; uniform vec4 uS[${MAXN}]; uniform vec4 uM[${MAXN}];
-uniform float uK; uniform float uRefr; uniform float uKf[${MAXN}]; uniform float uMorph;
+uniform float uK; uniform float uRefr; uniform float uKf[${MAXN}];
+uniform vec4 uPull; uniform vec3 uPullR;
 out vec4 o;
-// stadium / capsule: segment along the long axis, radius = half the short side
-float sdCap(vec2 p, vec2 b){ float r = min(b.x, b.y); vec2 q = max(abs(p) - (b - r), 0.); return length(q) - r; }
-// cubic smooth-min (C2): thick, continuous fillets instead of V-shaped pinches
+float sdBox(vec2 p, vec2 b){ float m = min(b.x,b.y), q = max(b.x,b.y)/max(m,1e-3); float r = m*(1.-.07*min(1.,(q-1.)/.6));
+  vec2 d = abs(p) - (b - r); return length(max(d,0.)) + min(max(d.x,d.y),0.) - r; }
+float sdTaper(vec2 p, vec2 a, vec2 b, float r0, float r1){ vec2 pa = p-a, ba = b-a; float h = clamp(dot(pa,ba)/max(dot(ba,ba),1e-3),0.,1.); return length(pa-ba*h) - mix(r0,r1,h); }
 float smin(float a, float b, float k){ float h = max(k - abs(a-b), 0.) / k; return min(a,b) - h*h*h*k*(1./6.); }
-float scene(vec2 p){ float d = 1e5; for(int i=0;i<${MAXN};i++){ if(i>=uN) break; vec4 g = uG[i]; if(g.z < .25) continue;
-  float di = sdCap(p - g.xy, g.zw); float k = max(.5, uK * uKf[i]);
+float shape(int i, vec2 p){ vec4 g = uG[i]; float d = sdBox(p - g.xy, g.zw);
+  if (i == uMain && uPullR.z > .5) d = smin(d, sdTaper(p, uPull.xy, uPull.zw, uPullR.x, uPullR.y), uPullR.x * 1.6);
+  return d; }
+float scene(vec2 p){ float d = 1e5; for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(uG[i].z < .25) continue;
+  float di = shape(i, p); float k = max(.5, uK * uKf[i]);
   d = di - d > k ? d : (d - di > k ? di : smin(d, di, k)); } return d; }
 vec3 hueRot(vec3 c, float a){ const mat3 toY = mat3(.299,.596,.211, .587,-.274,-.523, .114,-.322,.312);
   const mat3 toR = mat3(1.,1.,1., .956,-.272,-1.106, .621,-.647,1.703); vec3 y = toY*c; float h = atan(y.z,y.y)+a, ch = length(y.yz);
   return toR*vec3(y.x, ch*cos(h), ch*sin(h)); }
-vec3 sampleB(int i, vec2 p){ vec4 m = uM[i]; vec2 l = (p - m.xy) / (2.2 * m.zw) + .5; float A = m.z / m.w; vec2 uv = l;   // image at 1.1x
+vec3 sampleB(int i, vec2 p){ vec4 m = uM[i]; vec2 l = (p - m.xy) / (2. * m.zw) + .5; float A = m.z / m.w; vec2 uv = l;   // cover-fit
   if (A > ${IA.toFixed(4)}) uv.y = .5 + (l.y - .5) * (${IA.toFixed(4)} / A); else uv.x = .5 + (l.x - .5) * (A / ${IA.toFixed(4)});
   vec3 c = texture(uTex, vec3(clamp(uv, .002, .998), uS[i].y)).rgb; if (uS[i].w != 0.) c = clamp(hueRot(c, uS[i].w), 0., 1.); return c; }
 void main(){
   vec2 p = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;
   float d = scene(p);
   if (d > 1.5) { o = vec4(0.,0.,0.,1.); return; }
-  // forward-difference normal: 2 extra scene evaluations instead of 4
   vec2 n = vec2(scene(p + vec2(1.,0.)) - d, scene(p + vec2(0.,1.)) - d);
   n = n / max(length(n), 1e-4);
   float ds[${MAXN}]; float dm = 1e5;
-  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; vec4 g = uG[i]; ds[i] = 1e5; if(g.z < .25) continue;
-    ds[i] = sdCap(p - g.xy, g.zw) - uS[i].z * 7.; dm = min(dm, ds[i]); }
-  float wsum = 0., hs = 0.;
-  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; float w = exp(-(ds[i]-dm)/8.); wsum += w; hs += w * min(uG[i].z, uG[i].w); }
-  hs /= wsum;
-  float ew = clamp(hs * .55, 7., 46.);          // thicker glass band
-  float e = clamp(1. + d / ew, 0., 1.);          // 0 deep inside -> 1 at the rim
-  // edge refraction / liquid UV warp, stronger while shapes are morphing
-  float warp = (1.9 + 1.4 * uMorph) * uRefr;
-  vec2 ps = p - n * pow(e, 1.6) * ew * warp;
+  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; ds[i] = 1e5; if(uG[i].z < .25) continue;
+    ds[i] = shape(i, p) - uS[i].z * 7.; dm = min(dm, ds[i]); }
+  float wsum = 0.;
+  for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; wsum += exp(-(ds[i]-dm)/8.); }
+  // thin, flat glass (matched to pixel crops of the source): a faint lens right at the edge,
+  // ~4% darkening toward the rim, and a narrow bright lip that is a little stronger on top
+  float e = clamp(1. + d / 14., 0., 1.);
+  vec2 ps = p - n * e * e * 5. * uRefr;
   vec3 col = vec3(0.);
   for(int i=0;i<${MAXN};i++){ if(i>=uN) break; if(ds[i] > 1e4) continue; float w = exp(-(ds[i]-dm)/8.) / wsum; if (w < .004) continue; col += w * sampleB(i, ps); }
-  vec2 Ld = normalize(vec2(-.55,-.83));
-  float lit = max(dot(n, Ld), 0.), back = max(dot(n, -Ld), 0.);
-  // volumetric glass: strong inner darkening just inside the rim, wide Fresnel, bright lip, specular
-  float inner = smoothstep(.25, .82, e) * (1. - smoothstep(.9, 1., e) * .55);
-  col *= 1. - .78 * inner;
-  float fres = pow(e, 2.6);
-  col += fres * (.12 + .5 * lit + .14 * back);
-  float lip = smoothstep(-6.5, -1.2, d) * (1. - smoothstep(-1.2, .6, d));
-  col += lip * (.14 + .62 * lit + .16 * back);
-  col += pow(e, 3.5) * (pow(lit, 4.) * .55 + pow(back, 6.) * .14);
+  col *= 1. - .04 * smoothstep(-80., -6., d);
+  float lip = smoothstep(-9.5, -2., d);
+  col += lip * (.13 + .16 * col) * (1. + .3 * (-n.y));
   col = min(col, vec3(1.));
   float a = clamp(.5 - d, 0., 1.);
   o = vec4(col * a, 1.);
@@ -436,9 +426,9 @@ gl.useProgram(prog);
 const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
 const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 const U = n => gl.getUniformLocation(prog, n);
-const uMorph = U('uMorph'), uKf = U('uKf'), uRes = U('uRes'), uDpr = U('uDpr'), uN = U('uN'), uG = U('uG'), uSu = U('uS'), uM = U('uM'), uK = U('uK'), uRefr = U('uRefr');
+const uKf = U('uKf'), uRes = U('uRes'), uDpr = U('uDpr'), uN = U('uN'), uG = U('uG'), uSu = U('uS'), uM = U('uM'), uK = U('uK'), uRefr = U('uRefr'), uMain = U('uMain'), uPull = U('uPull'), uPullR = U('uPullR');
 const tex = gl.createTexture(); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D_ARRAY, tex);
-gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, IMG_W, IMG_H, 5);
+gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, IMG_W, IMG_H, NPH);
 gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 gl.uniform1i(U('uTex'), 0);
@@ -447,55 +437,60 @@ const loadImg = src => new Promise((res, rej) => { const im = new Image(); im.on
 const KF = new Float32Array(MAXN), G = new Float32Array(MAXN * 4), SS = new Float32Array(MAXN * 4), M = new Float32Array(MAXN * 4);
 function render() {
   gl.viewport(0, 0, cv.width, cv.height);
-  let n = 0;
+  let n = 0, mi = -1;
   for (const b of blobs) { if (n >= MAXN) break; const s = Math.max(0, b.s.v) * b.hs.v; const hw = b.w.v * s, hh = b.h.v * s; if (hw < .3) continue;
+    if (b === main) mi = n;
     KF[n] = Math.max(0.05, b.kf.v);
-    const mp = b.mapTo && !b.mapTo.dying ? b.mapTo : b; const ms = Math.max(0.05, mp.s.v);
-    G.set([b.x.v, b.y.v, hw, hh], n * 4); SS.set([Math.min(hw, hh), b.photo, b.z, b.hue], n * 4);
-    M.set([mp.x.v, mp.y.v, Math.max(4, mp.w.v * ms), Math.max(4, mp.h.v * ms)], n * 4); n++; }
-  gl.uniform2f(uRes, W, H); gl.uniform1f(uDpr, dpr); gl.uniform1i(uN, n);
+    G.set([b.x.v, b.y.v, hw, hh], n * 4); SS.set([0, b.photo, b.z, b.hue], n * 4);
+    M.set([b.x.v, b.y.v, Math.max(4, hw), Math.max(4, hh)], n * 4); n++; }
+  gl.uniform2f(uRes, W, H); gl.uniform1f(uDpr, dpr); gl.uniform1i(uN, n); gl.uniform1i(uMain, mi);
   gl.uniform4fv(uG, G); gl.uniform4fv(uSu, SS); gl.uniform4fv(uM, M);
-  gl.uniform1f(uK, Math.max(0.5, P.goo)); gl.uniform1fv(uKf, KF); gl.uniform1f(uRefr, P.refr); gl.uniform1f(uMorph, Math.min(1, morph));
+  gl.uniform4f(uPull, pull.bx, pull.by, pull.tx.v, pull.ty.v); gl.uniform3f(uPullR, pull.r0, pull.r1, pull.on ? 1 : 0);
+  gl.uniform1f(uK, Math.max(0.5, P.goo)); gl.uniform1fv(uKf, KF); gl.uniform1f(uRefr, P.refr);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
 // ---------- simulation ----------
-const crop = document.getElementById('crop'); const cropA = S(0); let morph = 0;
+const crop = document.getElementById('crop'); const cropA = S(0.9);
 function sim(dt) {
-  simT += dt; simCaption(dt); const dPh = P.orbit * (Math.PI * 2 / 38) * dt; phase += dPh;
-  // keep satellites spaced around the orbit
-  const sats = blobs.filter(b => b.role === 'sat' && !b.dying);
-  for (let i = 0; i < sats.length; i++) for (let j = 0; j < sats.length; j++) { if (i === j) continue;
-    let d = Math.atan2(Math.sin(sats[i].theta - sats[j].theta), Math.cos(sats[i].theta - sats[j].theta));
-    const minSep = Math.PI * 2 / Math.max(sats.length, 3) * 0.72;
-    if (Math.abs(d) < minSep && !sats[i].hover) sats[i].theta += Math.sign(d || 1) * (minSep - Math.abs(d)) * 0.9 * dt; }
+  simT += dt; simCaption(dt);
+  while (stepQ.length && stepQ[0].at <= simT) step(stepQ.shift().dir);
   const z = zeta();
   for (const b of blobs) {
-    if (b.role === 'sat') {
-      if (b.hover) { b.theta -= dPh; b.x.t = b.hx; b.y.t = b.hy; }   // parked: holds its screen angle while hovered
-      else { const [tx, ty] = satTarget(b); b.x.t = tx; b.y.t = ty; }
-      const r = b.rs * L.unit; b.w.t = r; b.h.t = r; }
-    const Kp = b.role === 'pull' || b.isPull ? 320 : 92;
-    stepS(b.x, Kp, z, dt); stepS(b.y, Kp, z, dt);
-    const gw = b.w.t >= b.w.v, gh = b.h.t >= b.h.v;      // growing: springy jelly; shrinking: soft, never inverts
-    stepS(b.w, gw ? 104 : 58, gw ? z * 0.95 : Math.max(0.7, z), dt); stepS(b.h, gh ? 68 : 48, gh ? z * 0.95 : Math.max(0.7, z), dt);
+    let tx, ty, tr;
+    if (b.role === 'main') { tx = main.x.t; ty = main.y.t; b.w.t = L.hw; b.h.t = L.hh; }
+    else { [tx, ty, tr] = satTarget(b); b.w.t = tr; b.h.t = tr; b.x.t = tx; b.y.t = ty; }
+    stepS(b.w, K_MOVE, z, dt); stepS(b.h, K_MOVE, z, dt);
     if (b.w.v < 2) { b.w.v = 2; b.w.vel = Math.max(0, b.w.vel); } if (b.h.v < 2) { b.h.v = 2; b.h.vel = Math.max(0, b.h.vel); }
+    if (b.anc) {
+      const a = b.anc; a.t += dt;
+      const ww = b.role === 'main' ? L.hw : b.w.t, hh = b.role === 'main' ? L.hh : b.h.t;
+      a.x.t = (b.role === 'main' ? L.cx : tx) + a.sx * ww; a.y.t = (b.role === 'main' ? L.cy : ty) + a.sy * hh;
+      stepS(a.x, K_MOVE, z, dt); stepS(a.y, K_MOVE, z, dt);
+      const nx = a.x.v - a.sx * b.w.v, ny = a.y.v - a.sy * b.h.v;
+      b.x.vel = (nx - b.x.v) / dt; b.y.vel = (ny - b.y.v) / dt; b.x.v = nx; b.y.v = ny;
+      if (a.t > 1.4) { b.anc = null; b.x.t = tx; b.y.t = ty; b.x.vel = 0; b.y.vel = 0; }
+    } else {
+      const Kp = b.role === 'main' ? 160 : K_MOVE;
+      stepS(b.x, Kp, z, dt); stepS(b.y, Kp, z, dt);
+    }
     if (b.hot > 0) b.hot -= dt;
-    b.kf.t = b.role === 'pull' || b.isPull || b.role === 'main' || b.hot > 0 ? 1 : (b.hover ? 0.32 : KF_REST);
-    stepS(b.hs, 620, 0.5, dt); stepS(b.kf, b.kf.t > b.kf.v ? 400 : 30, 1, dt);   // full goo at once, relax slowly so necks snap naturally
-    stepS(b.s, b.dying ? 380 : 210, b.dying ? 0.55 : z * 0.75, dt);
+    b.kf.t = b.hot > 0 || (b.role === 'main' && pull.on) ? 1 : (b.hover ? 0.32 : KF_REST);
+    stepS(b.hs, 420, 0.75, dt); stepS(b.kf, b.kf.t > b.kf.v ? 400 : 30, 1, dt);
+    stepS(b.s, b.dying ? 380 : 210, b.dying ? 0.55 : 0.6, dt);
   }
+  if (pull.on) { stepS(pull.tx, pull.act ? 700 : 160, pull.act ? 0.9 : 0.85, dt); stepS(pull.ty, pull.act ? 700 : 160, pull.act ? 0.9 : 0.85, dt);
+    if (pull.act) pullAim(pull.lastX, pull.lastY);
+    if (!pull.act && Math.hypot(pull.tx.v - pull.bx, pull.ty.v - pull.by) < 1.5) pull.on = false; }
   for (let i = blobs.length - 1; i >= 0; i--) { const b = blobs[i]; if (b.dying && b.s.t === 0 && b.s.v < 0.01 && b.s.vel <= 0.5) { blobs.splice(i, 1); const k = items.indexOf(b); if (k >= 0) items.splice(k, 1); renderCaption(); } }
-  // crop guides fade in only while the frame is at rest
   const speed = Math.hypot(main.x.vel, main.y.vel) + Math.abs(main.w.vel) + Math.abs(main.h.vel);
-  morph += (Math.min(1, speed / 900 + (pull ? 0.6 : 0)) - morph) * Math.min(1, dt * 10);
-  cropA.t = P.crop && speed < 40 && !pull && Math.abs(main.w.v - L.hw) < 6 ? 1 : 0; stepS(cropA, 140, 1, dt);
+  cropA.t = P.crop && speed < 40 && !pull.on && Math.abs(main.w.v - L.hw) < 6 ? 0.9 : 0; stepS(cropA, 140, 1, dt);
 }
 function drawDom() {
   const a = Math.max(0, Math.min(1, cropA.v));
-  const cw = main.w.v * 2 * 0.46, ch = main.h.v * 2 * 0.48;
+  const cw = main.w.v * 2 * 0.446, ch = main.h.v * 2 * 0.479;
   crop.style.width = cw + 'px'; crop.style.height = ch + 'px';
-  crop.style.transform = `translate(${main.x.v - cw / 2}px, ${main.y.v - ch / 2}px)`; crop.style.opacity = a * 0.9;
+  crop.style.transform = `translate(${main.x.v + main.w.v * 0.035 - cw / 2}px, ${main.y.v + main.h.v * 0.1 - ch / 2}px)`; crop.style.opacity = a;
 }
 function tick(ms) {
   let rest = ms / 1000; while (rest > 1e-6) { const h = Math.min(1 / 240, rest); sim(h); rest -= h; }
@@ -503,49 +498,54 @@ function tick(ms) {
   render(); drawDom(); slides.forEach(drawSlide);
 }
 
-// ---------- scripted demo (for recording) ----------
+// ---------- scripted demo: follows the source's timeline (swap starts measured from its frames) ----------
 const cursor = document.getElementById('cursor');
-const cur = { x: 0, y: 0 }; let seg = null; const queue = [];
+const cur = { x: 0, y: 0 }; let seg = null;
 const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 function demoScript() {
-  const sat = k => () => { const live = items.filter(b => !b.dying && b !== main); return live[k % live.length]; };
-  const nextSat = () => { const live = items.filter(b => !b.dying); return live[(live.indexOf(main) + 1) % live.length]; };
-  const posOf = f => () => { const b = f(); return b ? [b.x.v, b.y.v] : [W / 2, H / 2]; };
-  let chosen = null, added = null;
-  let hov = null;
+  const at = k => () => { const lv = live(), n = lv.length; const b = lv[(lv.indexOf(main) + k + n) % n]; return [b.x.v, b.y.v]; };
+  const edge = (fx, fy) => () => [L.cx + fx * L.hw, L.cy + fy * L.hh];
+  const grab = () => pullStart(cur.x, cur.y);
   return [
-    { at: 0.0, move: [W * 0.62, H * 0.86], dur: 0.01 },
-    // hover the next drop ~0.6s, then click it in
-    { at: 0.4, move: posOf(nextSat), dur: 0.8 },
-    { at: 1.85, act: () => { cursorDown(); swapTo(nextSat()); } },
-    // a full hover-in / hover-out with no click
-    { at: 2.7, move: posOf(() => (hov = hov || (() => { const nx = nextSat(); const live = items.filter(b => !b.dying && b !== main && b !== nx); return live[1 % live.length]; })())), dur: 0.7 },
-    { at: 4.0, move: () => { const hx = hov.hx ?? hov.x.v, hy = hov.hy ?? hov.y.v; return [hx + (L.cx - hx) * 0.18, hy + 150 * Math.sign(L.cy - hy || 1)]; }, dur: 0.5 },
-    // hover, then click the next one
-    { at: 4.6, move: posOf(nextSat), dur: 0.7 },
-    { at: 5.95, act: () => { cursorDown(); swapTo(nextSat()); } },
-    // jelly drag on the frame edge
-    { at: 6.9, move: () => [main.x.v + main.w.v - 30, main.y.v + 20], dur: 0.7 },
-    { at: 7.65, act: () => { cursor.classList.add('down'); pullStart(cur.x, cur.y); } },
-    { at: 7.7, move: () => [L.cx + L.hw + 150, L.cy + 40], dur: 0.8, drag: true },
-    { at: 8.5, move: () => [L.cx + L.hw + 95, L.cy - 70], dur: 0.45, drag: true },
-    { at: 9.0, act: () => { cursor.classList.remove('down'); pullEnd(); } },
-    // add a drop in empty space, hover it, bring it in
-    { at: 9.6, move: () => [L.cx - L.rx * 0.78, L.cy - L.ry * 0.95], dur: 0.7 },
-    { at: 10.4, act: () => { cursorDown(); added = addAt(cur.x, cur.y); } },
-    { at: 11.2, move: posOf(() => added), dur: 0.6 },
-    { at: 12.4, act: () => { cursorDown(); swapTo(added); } },
-    // remove mode
-    { at: 13.3, act: () => { rmBtn.click(); } },
-    { at: 13.3, move: posOf(() => (chosen = chosen || sat(2)())), dur: 0.7 },
-    { at: 14.5, act: () => { cursorDown(); removeBlob(chosen); } },
-    { at: 15.0, act: () => { rmBtn.click(); } },
-    { at: 15.3, move: posOf(nextSat), dur: 0.7 },
-    { at: 16.6, act: () => { cursorDown(); swapTo(nextSat()); } },
-    { at: 17.5, move: [W * 0.62, H * 0.9], dur: 1.0 },
+    { at: 0.0, move: [W * 0.66, H * 0.97], dur: 0.01 },
+    { at: 1.25, move: at(3), dur: 0.55 },                        // to the top drop
+    { at: 1.87, act: () => queueSteps(1, 3, [0.12, 0.2]) },      // 01 -> 04 in three quick steps
+    { at: 2.25, move: at(1), dur: 0.5 },
+    { at: 2.80, act: () => queueSteps(1, 1) },                   // 04 -> 05
+    { at: 3.55, move: at(1), dur: 0.5 },
+    { at: 4.12, act: () => queueSteps(1, 1) },                   // 05 -> 06
+    { at: 4.85, move: at(-1), dur: 0.55 },
+    { at: 5.47, act: () => queueSteps(-1, 1) },                  // 06 -> 05
+    { at: 5.75, move: at(-1), dur: 0.45 },
+    { at: 6.28, act: () => queueSteps(-1, 1) },                  // 05 -> 04
+    { at: 6.75, move: at(-1), dur: 0.45 },
+    { at: 7.28, act: () => queueSteps(-1, 1) },                  // 04 -> 03
+    { at: 8.4, move: at(2), dur: 0.6 },
+    { at: 9.12, act: () => queueSteps(1, 2, 0.15) },             // 03 -> 05
+    { at: 9.45, move: at(1), dur: 0.35 },
+    { at: 9.85, act: () => queueSteps(1, 1) },                   // 05 -> 06
+    // long rest on 06: hover drops, pull the frame edge out (as the source does from 10 s to 18 s)
+    { at: 10.6, move: edge(-0.72, -0.62), dur: 0.9 },
+    { at: 11.7, move: at(2), dur: 0.55 },
+    { at: 12.5, move: edge(-0.99, -0.42), dur: 0.12 },
+    { at: 12.55, act: grab },
+    { at: 12.57, move: () => { const [x, y] = at(2)(); return [x + 30, y + 22]; }, dur: 0.26, drag: true },
+    { at: 12.9, act: () => pullEnd() },
+    { at: 12.95, move: edge(-0.7, 0.75), dur: 0.22 },
+    { at: 13.18, act: grab },
+    { at: 13.2, move: () => { const [x, y] = at(1)(); return [x + 10, y - 20]; }, dur: 0.24, drag: true },
+    { at: 13.62, act: () => pullEnd() },
+    { at: 14.2, move: at(5), dur: 0.6 },
+    { at: 15.1, move: edge(0.15, -0.8), dur: 0.6 },
+    { at: 16.3, move: edge(0.3, -0.97), dur: 0.4 },
+    { at: 16.72, act: grab },
+    { at: 16.74, move: edge(0.4, -1.35), dur: 0.22, drag: true },
+    { at: 17.0, act: () => pullEnd() },
+    { at: 17.25, move: at(-1), dur: 0.6 },
+    { at: 18.0, act: () => queueSteps(-1, 3, [0.14, 0.22]) },    // 06 -> 03
+    { at: 18.7, move: [W * 0.66, H * 0.97], dur: 0.6 },
   ];
 }
-function cursorDown() { cursor.classList.add('down'); setTimeout(() => cursor.classList.remove('down'), 160); }
 let script = null;
 function demoTick() {
   if (!script) { script = demoScript(); cursor.style.display = 'block'; }
@@ -553,28 +553,32 @@ function demoTick() {
     if (s.act) s.act(); if (s.move) seg = { from: [cur.x, cur.y], to: s.move, t0: simT, dur: s.dur, drag: s.drag }; }
   if (seg) { const k = Math.min(1, (simT - seg.t0) / seg.dur), e = ease(k), to = typeof seg.to === 'function' ? seg.to() : seg.to;
     cur.x = seg.from[0] + (to[0] - seg.from[0]) * e; cur.y = seg.from[1] + (to[1] - seg.from[1]) * e;
-    if (seg.drag) pullMove(cur.x, cur.y); if (k >= 1 && !seg.drag && typeof seg.to !== 'function') seg = null; }
-  const hb = pull || drag ? null : hit(cur.x, cur.y), hsat = hb && hb.role === 'sat' ? hb : null;
-  setHover(hsat); placeCursor(cur.x, cur.y, hsat);
-  if (!script.length && Q.has('demo') && !CAPTURE && simT > 19.5) { /* loop demo */ location.reload(); }
+    if (seg.drag) pullMove(cur.x, cur.y);
+    if (k >= 1 && !seg.drag && typeof seg.to !== 'function') seg = null; }
+  const hb = pull.act || stepQ.length ? null : hit(cur.x, cur.y), hsat = hb && hb.role === 'sat' ? hb : null;
+  setHover(hsat);
+  cursor.style.transform = `translate(${cur.x}px, ${cur.y}px)`; cursor.className = hsat ? 'hand' : 'arrow';
+  if (!script.length && Q.has('demo') && !CAPTURE && simT > 19.5) location.reload();
 }
 
 // ---------- boot ----------
-Promise.all([1,2,3,4,5].map(i => loadImg(`photo${i}.jpg`))).then(imgs => {
+Promise.all([1,2,3,4,5,6].map(i => loadImg(`photo${i}.jpg`))).then(imgs => {
   const c = document.createElement('canvas'); c.width = IMG_W; c.height = IMG_H; const x = c.getContext('2d');
   imgs.forEach((im, i) => { x.drawImage(im, 0, 0, IMG_W, IMG_H); gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, i, IMG_W, IMG_H, 1, gl.RGBA, gl.UNSIGNED_BYTE, c); });
-  init();
-  window.__ready = true;
-  if (CAPTURE) { window.__advance = ms => tick(ms); tick(0); }
-  else {
-    // adaptive resolution: if frames run long for a while (slow GPU / huge screen), drop render scale a notch
-    let last = performance.now(), ema = 16.7, cool = last + 1500;
-    const loop = now => { const dt = now - last; last = now; ema = ema * 0.92 + Math.min(dt, 80) * 0.08;
-      if (ema > 22 && renderScale > 0.55 && now > cool && !document.hidden) { renderScale = Math.max(0.55, renderScale - 0.15); layout(); cool = now + 1500; }
-      tick(Math.min(50, dt)); requestAnimationFrame(loop); };
-    requestAnimationFrame(loop); }
+  const go = () => {
+    init();
+    window.__ready = true;
+    if (CAPTURE) { window.__advance = ms => tick(ms); tick(0); }
+    else {
+      let last = performance.now(), ema = 16.7, cool = last + 1500;
+      const loop = now => { const dt = now - last; last = now; ema = ema * 0.92 + Math.min(dt, 80) * 0.08;
+        if (ema > 22 && renderScale > 0.55 && now > cool && !document.hidden) { renderScale = Math.max(0.55, renderScale - 0.15); layout(); cool = now + 1500; }
+        tick(Math.min(50, dt)); requestAnimationFrame(loop); };
+      requestAnimationFrame(loop); }
+  };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(go, go);
 });
-window.__app = { swapTo, step, addAt, removeBlob, pullStart, pullMove, pullEnd, P, blobs, items };
+window.__app = { swapTo, step, queueSteps, addAt, removeBlob, pullStart, pullMove, pullEnd, P, blobs, items, L, get main() { return main; } };
 })();
 </script>
 </body>
